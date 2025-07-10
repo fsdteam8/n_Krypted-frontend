@@ -21,6 +21,7 @@ const modules = {
     [{ header: [1, 2, 3, false] }],
     ["bold", "italic", "underline", "strike"],
     [{ list: "ordered" }, { list: "bullet" }],
+      [{ 'align': [] }], // 👈 Alignment options (including justify)
     [{ color: [] }, { background: [] }],
     ["link", "image"],
     ["clean"],
@@ -32,6 +33,7 @@ const QuillEditor = ({ value, onChange, id }: QuillEditorProps) => {
     () => [
       "header",
       "bold",
+       'align',
       "italic",
       "underline",
       "strike",

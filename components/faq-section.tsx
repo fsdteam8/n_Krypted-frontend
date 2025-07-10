@@ -17,7 +17,7 @@ export function FaqSection() {
                   className="text-[40px] font-normal font-benedict text-white leading-[120%] tracking-[0.04em] 
                  [text-shadow:_0_0_1px_#fff,_0_0_15px_#fff,_0_0_15px_#fff]"
                 >
-                  FAQs
+                  FAQ
                 </h1>
               </div>
               <h2 className="text-white text-[24px] font-semibold tracking-tight md:text-[30px] lg:text-[30px] mt-2 mb-4">Frequently Asked Questions</h2>

@@ -23,8 +23,7 @@ const PayPalCheckout: React.FC<PayPalCheckoutProps> = ({
 }) => {
   const paypalRef = useRef<HTMLDivElement | null>(null);
   const isRendered = useRef(false);
-  const router = useRouter(); 
-  
+  const router = useRouter();
 
   useEffect(() => {
     if (!window.paypal || !paypalRef.current || isRendered.current) return;
@@ -44,7 +43,7 @@ const PayPalCheckout: React.FC<PayPalCheckoutProps> = ({
             purchase_units: [
               {
                 amount: {
-                  value: amount.toFixed(2), 
+                  value: amount.toFixed(2),
                 },
               },
             ],
@@ -68,14 +67,14 @@ const PayPalCheckout: React.FC<PayPalCheckoutProps> = ({
           router.push("/success");
           console.log(res.data);
         },
-         // eslint-disable-next-line
+        // eslint-disable-next-line
         onError: (err: any) => {
           console.error("PayPal Checkout Error:", err);
           alert("Something went wrong during the payment.");
         },
       })
       .render(paypalRef.current);
-  }, [amount, userId, bookingId,router]);
+  }, [amount, userId, bookingId, router]);
 
   return <div ref={paypalRef}></div>;
 };

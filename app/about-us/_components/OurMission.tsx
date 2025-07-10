@@ -13,25 +13,28 @@ const OurMission = () => {
                  [text-shadow:_0_0_1px_#fff,_0_0_15px_#fff,_0_0_15px_#fff]"
               style={{ fontFamily: "cursive" }}
             >
-              Mission
+             Unsere Mission  
             </h1>
           </div>
           <h3 className="text-xl sm:text-2xl lg:text-[32px] text-white font-semibold mt-4 sm:mt-5">
-            What is Walk Throughz current purpose?
+            Was ist der aktuelle Zweck von Walk Throughz?
           </h3>
           <p className="text-white text-sm sm:text-base lg:text-xl leading-[150%] font-normal mt-4 sm:mt-5 text-justify">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis molestie, sapien et vulputate porttitor, eros
-            magna laoreet mauris, eu suscipit tortor turpis in elit. Sed tristique pharetra ligula. Aenean eu tempor lorem.
-            Sed posuere ante id laoreet finibus. Vivamus a pulvinar ex. Quisque nec metus rutrum diam pulvinar rutrum. Sed
-            enim tortor, accumsan ac dignissim in, finibus placerat lorem. Cras rhoncus hendrerit diam nec vestibulum. Cras
-            vehicula neque augue, vel posuere neque blandit vel nisi.
+            Unsere Mission ist es, Stadt neu erlebbar zu machen: Wir möchten
+            Bürger*innen und Lokationen enger miteinander vernetzen und echte,
+            bleibende Bindungen zu Orten schaffen – durch das Teilen von lokalem
+            Fachwissen, Leidenschaft und Persönlichkeit. Walk Throughz bringt
+            Gleichgesinnte auf eine neue, ungezwungene Art zusammen und fördert
+            den Austausch über Themen, die inspirieren. Wir wollen verhindern,
+            dass unsere Städte unpersönlich und leblos werden. Stattdessen
+            setzen wir Impulse, die sie aktiv, menschlich und dynamisch halten.
           </p>
         </div>
 
         {/* Image Section */}
         <div className="flex-1 flex justify-center lg:justify-end">
           <Image
-            src="/assets/mission.png"
+            src="/assets/newcontact3.jpg"
             alt="Auction speaker"
             height={550}
             width={470}

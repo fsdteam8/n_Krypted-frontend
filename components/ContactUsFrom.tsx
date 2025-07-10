@@ -23,6 +23,12 @@ export default function ContactUsForm() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+
+    if (name === "message") {
+      const wordCount = value.trim().split(/\s+/).filter(Boolean).length;
+      if (wordCount > 300) return; // Prevent setting value if over 300 words
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -86,11 +92,11 @@ export default function ContactUsForm() {
 
       setSubmitStatus({
         success: true,
-        message: "Thank you for your feedback! We'll get back to you soon.",
+        message: "Vielen Dank für Ihre Nachricht. Wir melden uns so schnell wie möglich bei Ihnen!",
       });
 
       // Log the full response for debugging
-      console.log("Feedback submitted successfully:", data);
+     
     } catch (error) {
       console.error("Feedback submission error:", error);
       setSubmitStatus({
@@ -103,7 +109,7 @@ export default function ContactUsForm() {
     } finally {
       setIsSubmitting(false);
       toast.success(
-        "Feedback submitted successfully! We'll get back to you soon."
+        "Vielen Dank für Ihre Nachricht. Wir melden uns so schnell wie möglich bei Ihnen!"
       );
     }
   };

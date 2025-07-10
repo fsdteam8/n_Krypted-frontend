@@ -26,16 +26,12 @@ function Blogs() {
 
   return (
     <section>
-      <PageHeader
-        title="Our Latest Blogs"
-        imge="/assets/blogs.jpg"
-       
-      />
+      <PageHeader title="Our Latest Blogs" imge="/assets/Blogbanner.jpg" />
       <div className="container my-24">
         {loading ? (
           <p className="text-center text-white">Loading blogs...</p>
         ) : (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
             {blogs.map((blog: Blog) => (
               <BlogsCard key={blog._id} blog={blog} />
             ))}

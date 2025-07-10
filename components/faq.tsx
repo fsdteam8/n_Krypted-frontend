@@ -3,6 +3,11 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 
 
 const faqs = [
+     {
+        question: "Was genau ist ein Walk Through eigentlich?",
+        answer:
+            "Ein Walk Through ist eine kurze, geführte Tour durch besondere Orte – zum Beispiel durch kleine Läden, Ateliers, Werkstätten oder Cafés. Die Gastgeber:innen geben direinen persönlichen Einblick hinter die Kulissen – authentisch, nahbar und oft überraschend",
+    },
     {
         question: "Wie buche ich einen Walk Through?",
         answer:
@@ -23,11 +28,7 @@ const faqs = [
         answer:
             "Aktuell ist eine Umbuchung leider noch nicht möglich – aber wir arbeiten bereits an einer Lösung!",
     },
-    {
-        question: "Was genau ist ein Walk Through eigentlich?",
-        answer:
-            "Ein Walk Through ist eine kurze, geführte Tour durch besondere Orte – zum Beispiel durch kleine Läden, Ateliers, Werkstätten oder Cafés. Die Gastgeber:innen geben direinen persönlichen Einblick hinter die Kulissen – authentisch, nahbar und oft überraschend",
-    }
+   
 ]
 
 function Faq() {

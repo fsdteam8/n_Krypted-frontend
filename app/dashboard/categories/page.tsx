@@ -471,7 +471,7 @@ const CategoriesPage = () => {
 
         {/* Add Category Modal */}
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogContent className=" max-w-7xl bg-[#FFFFFF] rounded-lg shadow-lg p-6">
+          <DialogContent className=" max-w-4xl bg-[#FFFFFF] rounded-lg shadow-lg p-6">
             <DialogHeader>
               <DialogTitle className="text-xl font-bold">
                 Add Category
@@ -479,7 +479,7 @@ const CategoriesPage = () => {
             </DialogHeader>
             <form
               onSubmit={handleSubmit}
-              className="grid grid-cols-1 md:grid-cols-2 gap-6"
+              className=" gap-6"
             >
               <div className="space-y-4">
                 <div>
@@ -571,10 +571,10 @@ const CategoriesPage = () => {
                   )}
                 </div>
               </div>
-              <div className="md:col-span-2 flex justify-end">
+              <div className="md:col-span-2 flex justify-end mt-4">
                 <Button
                   type="submit"
-                  className="bg-black hover:bg-gray-800 text-white"
+                  className="bg-black hover:bg-gray-800 text-white "
                   disabled={addCategoryMutation.isPending}
                 >
                   {addCategoryMutation.isPending ? "Adding..." : "Add Category"}
@@ -586,7 +586,7 @@ const CategoriesPage = () => {
 
         {/* Edit Category Modal */}
         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-          <DialogContent className="max-w-7xl bg-[#FFFFFF] rounded-lg shadow-lg p-6">
+          <DialogContent className="max-w-4xl bg-[#FFFFFF] rounded-lg shadow-lg p-6">
             <DialogHeader>
               <DialogTitle className="text-xl font-bold">
                 Edit Category
@@ -594,7 +594,7 @@ const CategoriesPage = () => {
             </DialogHeader>
             <form
               onSubmit={handleEditSubmit}
-              className="grid grid-cols-1 md:grid-cols-2 gap-6"
+              className=""
             >
               <div className="space-y-4">
                 <div>
@@ -693,7 +693,7 @@ const CategoriesPage = () => {
               <div className="md:col-span-2 flex justify-end">
                 <Button
                   type="submit"
-                  className="bg-black hover:bg-gray-800 text-white"
+                  className="bg-black hover:bg-gray-800 text-white mt-4"
                   disabled={editCategoryMutation.isPending}
                 >
                   {editCategoryMutation.isPending ? "Updating..." : "Update"}
