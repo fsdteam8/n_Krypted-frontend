@@ -30,7 +30,7 @@ export function RegisterForm() {
     e.preventDefault()
 
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match")
+      toast.error("Passwörter stimmen nicht überein")
       return
     }
 
@@ -45,7 +45,7 @@ export function RegisterForm() {
       })
 
       if (result.success) {
-        toast.success("Account created successfully!")
+        toast.success("Konto erfolgreich erstellt!")
 
         // Store email in sessionStorage before redirecting
         sessionStorage.setItem("registerEmail", email)
@@ -56,7 +56,7 @@ export function RegisterForm() {
         toast.error(result.message)
       }
     } catch {
-      toast.error("Something went wrong. Please try again.")
+      toast.error("Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.")
     } finally {
       setIsLoading(false)
     }

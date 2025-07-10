@@ -80,12 +80,12 @@ export default function Dashboard() {
         // Validate file type and size
         const validTypes = ['image/jpeg', 'image/png', 'image/webp']
         if (!validTypes.includes(file.type)) {
-            toast.error('Please upload a JPEG, PNG, or WebP image')
+            toast.error('Bitte laden Sie ein JPEG-, PNG- oder WebP-Bild hoch')
             return
         }
 
         if (file.size > 2 * 1024 * 1024) {
-            toast.error('Image size should be less than 2MB')
+            toast.error('Die Bildgröße sollte weniger als 2 MB betragen')
             return
         }
 
@@ -95,7 +95,7 @@ export default function Dashboard() {
             const userId = session?.user?.id
 
             if (!userId) {
-                throw new Error("User session is invalid - missing ID")
+                throw new Error("Benutzersitzung ist ungültig – fehlende ID")
             }
 
             const formData = new FormData()
@@ -153,7 +153,7 @@ export default function Dashboard() {
             const userData = await userResponse.json()
             setUserData(userData.user || userData) // Adjust based on your API response structure
 
-            toast.success('Profile image updated successfully')
+            toast.success('Profilbild erfolgreich aktualisiert')
         } catch (error) {
             console.error('Upload error:', error)
             toast.error(
@@ -170,10 +170,10 @@ export default function Dashboard() {
     const handleLogout = async () => {
         try {
             await signOut({ callbackUrl: '/' })
-            toast.success('Logged out successfully')
+            toast.success('Erfolgreich abgemeldet')
         } catch (error) {
             console.error('Error during logout:', error)
-            toast.error('Failed to log out')
+            toast.error('Abmeldung fehlgeschlagen')
         } finally {
             setShowLogoutDialog(false)
         }

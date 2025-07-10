@@ -18,7 +18,7 @@ export function VerifyOtpForm() {
 
     const otpString = otp.join("")
     if (otpString.length !== 6) {
-      toast.error("Please enter all 6 digits")
+      toast.error("Bitte geben Sie alle 6 Ziffern ein")
       return
     }
 
@@ -26,7 +26,7 @@ export function VerifyOtpForm() {
     const email = sessionStorage.getItem("resetEmail")
 
     if (!email) {
-      toast.error("Email not found. Please go back to the forgot password page.")
+      toast.error("E-Mail nicht gefunden. Bitte gehen Sie zurück zur Seite „Passwort vergessen“.")
       router.push("/forgot-password")
       return
     }
@@ -35,7 +35,7 @@ export function VerifyOtpForm() {
       const result = await verifyOTP(email, otpString)
 
       if (result.success) {
-        toast.success("OTP verified successfully")
+        toast.success("OTP erfolgreich verifiziert")
 
         // Store verification token if provided
         const token = (result.data as { token?: string })?.token
@@ -45,10 +45,10 @@ export function VerifyOtpForm() {
 
         router.push("/reset-password")
       } else {
-        toast.error(result.message || "Failed to verify OTP")
+        toast.error(result.message || "OTP konnte nicht verifiziert werden")
       }
     } catch {
-      toast.error("Failed to verify OTP")
+      toast.error("OTP konnte nicht verifiziert werden")
     } finally {
       setIsLoading(false)
     }
@@ -66,12 +66,12 @@ export function VerifyOtpForm() {
       const result = await forgotPassword(email)
 
       if (result.success) {
-        toast.success("Verification code sent successfully")
+        toast.success("Bestätigungscode erfolgreich gesendet")
       } else {
-        toast.error(result.message || "Failed to send verification code")
+        toast.error(result.message || "Der Bestätigungscode konnte nicht gesendet werden.")
       }
     } catch {
-      toast.error("Failed to send verification code")
+      toast.error("Der Bestätigungscode konnte nicht gesendet werden.")
     }
   }
 

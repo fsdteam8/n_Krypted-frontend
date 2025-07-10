@@ -27,12 +27,12 @@ export function ChangePasswordForm() {
     e.preventDefault()
 
     if (newPassword !== confirmPassword) {
-      toast.success("Passwords do not match")
+      toast.success("Passwörter stimmen nicht überein")
       return
     }
 
     if (newPassword.length < 8) {
-      toast.success("Password must be at least 8 characters long")
+      toast.success("Das Passwort muss mindestens 8 Zeichen lang sein")
       return
     }
 
@@ -53,14 +53,14 @@ export function ChangePasswordForm() {
       const data = await response.json()
 
       if (response.ok) {
-        toast.success("Password changed successfully")
+        toast.success("Passwort erfolgreich geändert")
 
         router.push("/dashboard")
       } else {
         toast.success(data.message)
       }
     } catch {
-      toast.error("Failed to change password")
+      toast.error("Passwort konnte nicht geändert werden")
       
     } finally {
       setIsLoading(false)

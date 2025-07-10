@@ -25,7 +25,7 @@ export function HeroBanner() {
             </h1>
             <div className="mb-8">
               <p className="text-white/90 text-sm md:text-base max-w-2md">
-                Mit <span className="font-bold text-[18px]">Walk Throughz</span>{" "}
+                Mit <span className="font-bold ">Walk Throughz</span>{" "}
                 erlebst Du Deine Stadt neu – durch kurze, persönliche Einblicke
                 direkt von den Menschen, die sie gestalten. Ob Blumenladen,
                 Galerie oder Kaffeerösterei: Überall wartet eine eigene kleine

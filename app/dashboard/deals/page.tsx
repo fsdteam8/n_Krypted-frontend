@@ -34,6 +34,7 @@ import AddDealModal from "./_component/add-deal-modal";
 import { Skeleton } from "@/components/ui/skeleton";
 import DealDetailsModal from "./_component/deal-details-modal";
 import EditDealModal from "./_component/edit-deal-moda";
+import { useSession } from "next-auth/react";
 
 interface Category {
   _id: string;
@@ -83,13 +84,15 @@ interface CategoriesResponse {
 export default function DealsManagement() {
   const [page, setPage] = useState(1);
   const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const token = session?.user?.accessToken;
 
   const { data, isLoading } = useQuery<ApiResponse>({
     queryKey: ["deals", page],
     queryFn: async () => {
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/deals?page=${page}&limit=10`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/deals?showAll=true`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch deals");
@@ -102,7 +105,7 @@ export default function DealsManagement() {
     },
   });
 
- 
+  console.log("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDEE", data)
 
   // Fetch categories from API
   const { data: categoriesData } = useQuery<CategoriesResponse>({
@@ -134,6 +137,7 @@ export default function DealsManagement() {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -166,9 +170,10 @@ export default function DealsManagement() {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/deals/${id}/status`,
         {
-          method: "PUT",
+          method: "PATCH",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ status: newStatus }),
         }

@@ -173,6 +173,8 @@ export function DealsSection() {
                         updatedAt={deal.updatedAt}
                         participations={deal.bookingCount}
                         maxParticipants={deal.participationsLimit}
+                        scheduleDates={deal.scheduleDates}
+                        location={deal.location}
                       />
                     </div>
                   </CarouselItem>
