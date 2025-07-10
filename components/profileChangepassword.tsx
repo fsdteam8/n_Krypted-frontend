@@ -59,14 +59,14 @@ function ProfileChangepassword() {
             const data = await response.json()
 
             if (!response.ok) {
-                throw new Error(data.message || 'Failed to change password')
+                throw new Error(data.message || 'Passwort konnte nicht geändert werden')
             }
 
             if (!data.success) {
                 throw new Error(data.message || 'Password change failed')
             }
 
-            toast.success('Password changed successfully')
+            toast.success('Passwort erfolgreich geändert')
             // Reset form
             setCurrentPassword('')
             setNewPassword('')
@@ -76,15 +76,15 @@ function ProfileChangepassword() {
             
             // Handle specific error cases
             if (error instanceof Error) {
-                if (error.message.includes("User not found")) {
-                    toast.error("Your session appears invalid. Please log out and log in again.")
+                if (error.message.includes("Benutzer nicht gefunden")) {
+                    toast.error("Ihre Sitzung scheint ungültig zu sein. Bitte melden Sie sich ab und erneut an.")
                 } else if (error.message.includes("current password")) {
-                    toast.error("The current password you entered is incorrect")
+                    toast.error("Das aktuell von Ihnen eingegebene Passwort ist falscht")
                 } else {
-                    toast.error(error.message || 'Failed to change password')
+                    toast.error(error.message || 'Passwort konnte nicht geändert werden')
                 }
             } else {
-                toast.error('An unexpected error occurred')
+                toast.error('Ein unerwarteter Fehler ist aufgetreten')
             }
         } finally {
             setIsLoading(false)

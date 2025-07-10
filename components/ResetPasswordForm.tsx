@@ -27,7 +27,7 @@ export function ResetPasswordForm() {
     // Get email from URL search params
     const storedEmail = sharch.get("email");
     if (!storedEmail) {
-      toast.error("Email not found in URL parameters");
+      toast.error("E-Mail nicht in URL-Parametern gefunden");
     } else {
       setEmail(storedEmail);
     }
@@ -40,12 +40,12 @@ export function ResetPasswordForm() {
     e.preventDefault()
 
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match")
+      toast.error("Passwörter stimmen nicht überein")
       return
     }
 
     if (password.length < 8) {
-      toast.error("Password must be at least 8 characters long")
+      toast.error("Das Passwort muss mindestens 8 Zeichen lang sein")
       return
     }
 
@@ -66,7 +66,7 @@ export function ResetPasswordForm() {
       const data = await response.json()
 
       if (response.ok) {
-        toast.success("Password reset successfully!")
+        toast.success("Passwort erfolgreich zurückgesetzt!")
 
         // Clear session storage
         sessionStorage.removeItem("resetEmail")
@@ -74,10 +74,10 @@ export function ResetPasswordForm() {
 
         router.push("/login")
       } else {
-        toast.success(data.message || "Failed to reset password")
+        toast.success(data.message || "Das Zurücksetzen des Passworts ist fehlgeschlagen.")
       }
     } catch {
-      toast.error("Something went wrong. Please try again.")
+      toast.error("Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut..")
     } finally {
       setIsLoading(false)
     }

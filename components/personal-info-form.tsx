@@ -65,10 +65,10 @@ export default function PersonalInfoForm({ initialData }: { initialData: Persona
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to update profile')
+        throw new Error(data.message || 'Profil konnte nicht aktualisiert werden')
       }
 
-      toast.success('Profile updated successfully')
+      toast.success('Profil erfolgreich aktualisiert')
       
       await updateSession({
         ...session,
@@ -85,7 +85,7 @@ export default function PersonalInfoForm({ initialData }: { initialData: Persona
       
       setIsEditing(false)
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to update profile')
+      toast.error(error instanceof Error ? error.message : 'Profil konnte nicht aktualisiert werden')
       setFormData({
         name: initialData.name || "",
         email: initialData.email || "",

@@ -83,7 +83,7 @@
   font-family: 'Benedict';
   src: url('./fonts/d85bfa7b5e2eb872c592f58f015ecdb4.woff2') format('woff2'),
     url('./fonts/d85bfa7b5e2eb872c592f58f015ecdb4.woff') format('woff');
-  font-weight: 400;
+  font-weight: 400,500,600,700,900,1000;
   font-style: normal;
   font-display: swap;
 }
@@ -92,25 +92,34 @@
 .font-benedict {
   font-family: "Benedict" !important;
 }
+.bandit_font{
+  font-size: 40px;
+ 
+}
 
+.ql-align-justify {
+  text-align: justify;
+}
 
 /* QuillEditor custom styles */
 .list-item {
-  @apply text-base leading-relaxed;
+  @apply text-base leading-relaxed text-white;
 }
 
 .list-item ul,
 .list-item ol {
-  @apply pl-5;
+  @apply pl-5 text-white;
   margin-top: 0.5em;
   margin-bottom: 1em;
 }
 
 .list-item ul li,
 .list-item ol li {
-  @apply mb-2;
+  @apply mb-2 text-white;
   position: relative;
+  text-decoration: #d00;
 }
+
 
 .list-item ul li::before {
   content: "•";
@@ -144,6 +153,7 @@
   margin-top: 1em;
   margin-bottom: 0.5em;
   font-weight: bold;
+  color: white !important;
 }
 .blogcontent{
 color: white !important;
@@ -171,6 +181,13 @@ color: white !important;
 
 .list-item h6 {
   @apply text-sm;
+}
+
+.list-item p {
+  color: white !important;
+}
+.list-item span {
+  color: white !important;
 }
 
 /* Nested list styling */

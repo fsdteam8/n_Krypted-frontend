@@ -34,22 +34,22 @@ export function VerifyEmailForm() {
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.message || "Verification failed")
+        throw new Error(errorData.message || "Überprüfung fehlgeschlagen")
       }
 
       return await response.json()
     },
     onSuccess: (data) => {
       if (!data.success) {
-        toast.error(data.message || "Verification failed")
+        toast.error(data.message || "Überprüfung fehlgeschlagen")
         return
       }
-      toast.success("Email verified successfully!")
+      toast.success("E-Mail erfolgreich verifiziert!")
       router.push("/login")
     },
     onError: (error) => {
       console.error("Verification error:", error)
-      toast.error(error.message || "Invalid verification code")
+      toast.error(error.message || "Ungültiger Bestätigungscode")
     }
   })
 

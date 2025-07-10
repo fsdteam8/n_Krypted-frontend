@@ -5,12 +5,8 @@ import React, { Suspense } from "react";
 export default function page() {
   return (
     <div className="">
-      <PageHeader
-        title="Our All Deals"
-        imge="/assets/herobg.png"
-      
-      />
-      <div className="lg:mt-28 container">
+      <PageHeader title="Alle Deals" imge="/assets/Deals.jpg" />
+      <div className=" container">
         <Suspense fallback={<div>Loading...</div>}>
           <AllAuction />
         </Suspense>

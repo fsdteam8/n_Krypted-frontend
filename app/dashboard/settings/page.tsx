@@ -28,14 +28,14 @@ export default function SettingsPage() {
             title="Change Password"
             href="/dashboard/settings/change-password"
           />
-          <SettingCard
+          {/* <SettingCard
             title="Terms & conditions"
             href="/dashboard/settings/terms-conditions"
           />
           <SettingCard
             title="Privacy Policy"
             href="/dashboard/settings/privacy-policy"
-          />
+          /> */}
         </div>
       </div>
     </Layout>

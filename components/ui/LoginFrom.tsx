@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { getSession, signIn } from "next-auth/react"
-import Link from "next/link"
-import { Eye, EyeOff, Mail, Lock } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { toast } from "sonner"
+import { useState } from "react";
+import { getSession, signIn } from "next-auth/react";
+import Link from "next/link";
+import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 export function SignInForm() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,9 +37,7 @@ export function SignInForm() {
 
       const role = session?.user?.role;
 
-      
-
-      toast.success("Login successful");
+      toast.success("Anmeldung erfolgreich");
 
       if (role === "admin") {
         window.location.href = "/dashboard";
@@ -48,12 +46,11 @@ export function SignInForm() {
       }
     } catch (error) {
       console.error("Login error:", error);
-      toast.error("Login failed");
+      toast.error("Fehler bei der Anmeldung");
     } finally {
       setIsLoading(false);
     }
   };
-
 
   // const handleSocialSignIn = async (provider: string) => {
   //   try {
@@ -69,13 +66,13 @@ export function SignInForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">E-Mail-Adresse</Label>
         <div className="relative">
           <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
           <Input
             id="email"
             type="email"
-            placeholder="Enter your Email"
+            placeholder="Gib deine E-Mail-Adresse ein"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -86,14 +83,14 @@ export function SignInForm() {
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">Passwort</Label>
         </div>
         <div className="relative">
           <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
           <Input
             id="password"
             type={showPassword ? "text" : "password"}
-            placeholder="Enter your Password"
+            placeholder="Gib dein Passwort ein"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -104,23 +101,33 @@ export function SignInForm() {
             onClick={() => setShowPassword(!showPassword)}
             className="absolute right-3 top-3 text-gray-400"
           >
-            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            {showPassword ? (
+              <EyeOff className="h-5 w-5" />
+            ) : (
+              <Eye className="h-5 w-5" />
+            )}
           </button>
         </div>
         <div className="flex justify-end">
-          <Link href="/forgot-password" className="text-sm text-blue-500 hover:text-blue-400">
-            Forgot password?
+          <Link
+            href="/forgot-password"
+            className="text-sm text-blue-500 hover:text-blue-400"
+          >
+            Passwort vergessen?
           </Link>
         </div>
       </div>
 
-      <Button type="submit" className="w-full bg-white text-gray-900 hover:bg-gray-200" disabled={isLoading}>
-        {isLoading ? "Signing in..." : "Sign In"}
+      <Button
+        type="submit"
+        className="w-full bg-white text-gray-900 hover:bg-gray-200"
+        disabled={isLoading}
+      >
+        {isLoading ? "Anmeldung erfolgt" : "Anmelden"}
       </Button>
 
       <div className="relative flex items-center justify-center">
         <div className="h-px flex-1 bg-gray-600"></div>
-        <span className="mx-4 text-sm text-gray-400">Or continue with</span>
         <div className="h-px flex-1 bg-gray-600"></div>
       </div>
 
@@ -177,11 +184,11 @@ export function SignInForm() {
       </div> */}
 
       <div className="text-center text-sm text-[#BABABA]">
-        Don&apos;t have an account?{" "}
+        Du hast noch kein Konto?{" "}
         <Link href="/sign-up" className="text-white hover:text-blue-400">
-          Sign Up
+          Jetzt registrieren
         </Link>
       </div>
     </form>
-  )
+  );
 }

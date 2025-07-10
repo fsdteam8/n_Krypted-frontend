@@ -6,20 +6,16 @@ import Image from "next/image";
 const page = () => {
   return (
     <div>
-      <PageHeader
-        title="Frequently Asked Questions"
-        imge="/assets/faq2.png"
-       
-      />
+      <PageHeader title="Häufige Fragen" imge="/assets/faq-banner.jpg" />
       <div className="container">
         <div className="grid grid-cols-3 gap-4 pt-16">
           <div className="hidden lg:block lg:col-span-1 ">
             <Image
-              src="/assets/faq.png"
+              src="/assets/faq5.jpg"
               alt=""
               width={500}
               height={500}
-              className="hidden lg:block w-[350px] h-[450px] sticky top-[190px]"
+              className="hidden rounded-lg object-cover lg:block w-[350px] h-[450px] sticky top-[190px]"
             />
           </div>
           <div className="col-span-3 lg:col-span-2">
@@ -27,7 +23,7 @@ const page = () => {
           </div>
         </div>
         <div>
-          <ContactUsForm/>
+          <ContactUsForm />
         </div>
       </div>
     </div>
