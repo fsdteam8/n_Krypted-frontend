@@ -1,7 +1,6 @@
-
-import { SignInForm } from "@/components/ui/LoginFrom"
-import Image from "next/image"
-import { Suspense } from "react"
+import { SignInForm } from "@/components/ui/LoginFrom";
+import Image from "next/image";
+import { Suspense } from "react";
 
 export default function SignInPage() {
   return (
@@ -35,9 +34,12 @@ export default function SignInPage() {
                 <circle cx="12" cy="10" r="3"></circle>
               </svg>
             </div>
-            <h2 className="mb-2 text-4xl font-bold">Welcome back</h2>
+            <h2 className="mb-2 text-4xl font-bold">
+              Schön, dass du wieder da bist
+            </h2>
             <p className="max-w-md text-gray-300">
-              Discover amazing products and enjoy a seamless shopping experience with us.
+              Bereit für deinen nächsten Walk Through? Es warten neue Locations
+              und überraschende Einblicke auf dich.
             </p>
           </div>
         </div>
@@ -45,12 +47,18 @@ export default function SignInPage() {
       <div className="flex w-full items-center justify-center bg-[#212121] lg:w-1/2">
         <div className="w-full max-w-md space-y-8 rounded-lg p-8 text-white">
           <div className="text-center">
-            <h1 className="text-[26px] lg:text-[32px] font-semibold leading-[120%]">Welcome back</h1>
-            <p className="text-white text-[14px] lg:text-[16px] font-normal">Please enter your credentials to continue</p>
+            <h1 className="text-[26px] lg:text-[32px] font-semibold leading-[120%]">
+              Willkommen zurück
+            </h1>
+            <p className="text-white text-[14px] lg:text-[16px] font-normal">
+              Bitte gib deine Zugangsdaten ein, um fortzufahren.
+            </p>
           </div>
-          <Suspense fallback={<div>Loading...</div>}><SignInForm /></Suspense>
+          <Suspense fallback={<div>Loading...</div>}>
+            <SignInForm />
+          </Suspense>
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -46,8 +46,6 @@ export default function Dashboard() {
       return response.json()
     },
   })
-  console.log("data", data);
-  // const Data=data?.data
   
 
 

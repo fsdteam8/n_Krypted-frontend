@@ -79,7 +79,7 @@ export default function ContactForm() {
 
             setSubmitStatus({
                 success: true,
-                message: "Thank you for your message! We'll get back to you soon."
+                message: "Vielen Dank für Ihre Nachricht! Wir melden uns in Kürze bei Ihnen."
             })
 
             console.log("API Response:", data)
@@ -91,7 +91,7 @@ export default function ContactForm() {
             })
         } finally {
             setIsSubmitting(false)
-            toast.success(submitStatus?.message || "Thank you for your message! We'll get back to you soon.")
+            toast.success(submitStatus?.message || "Vielen Dank für Ihre Nachricht! Wir melden uns in Kürze bei Ihnen.")
         }
     }
 

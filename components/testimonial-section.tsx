@@ -125,7 +125,7 @@ export function TestimonialSection() {
               height={50}
               className=" h-[32px] w-[44px] text-white"
             />
-            <p className="text-white text-lg text-muted-foreground">
+            <p className="text-white text-lg overflow-hidden">
               {feedback.message}
             </p>
           </div>
@@ -137,13 +137,15 @@ export function TestimonialSection() {
               </span>
             </div>
             <div>
-              <h4 className="text-white text-sm lg:text-lg font-medium">
+              <h4 className="text-white text-sm lg:text-lg font-medium ">
                 {feedback.name}
               </h4>
               <p className="text-white text-sm text-muted-foreground">
                 Verified Bidder
               </p>
             </div>
+
+           
 
             <div className="ml-auto flex gap-2">
               <button

@@ -26,13 +26,13 @@ export function ForgotPasswordForm() {
       const data = await response.json()
 
       if (response.ok) {
-        toast.success("OTP sent successfully")
+        toast.success("OTP erfolgreich gesendet")
         setEmailSent(true)
       } else {
         toast.error(data.message)
       }
     } catch {
-      toast.error("Failed to send OTP")
+      toast.error("OTP konnte nicht gesendet werden")
     } finally {
       setIsLoading(false)
     }
