@@ -12,7 +12,8 @@ export default function SignUpPage() {
               Werde Teil von Walk Throughz
             </h1>
             <p className="text-white text-[14px] lg:text-[16px] font-normal">
-              Registriere dich kostenlos <div>und starte deine ersten Walk Throughz</div>
+              Registriere dich kostenlos{" "}
+              <div>und starte deine ersten Walk Throughz</div>
             </p>
           </div>
           <Suspense fallback={<div>Loading...</div>}>
@@ -24,7 +25,7 @@ export default function SignUpPage() {
         <div className="relative flex h-full flex-col items-center justify-center">
           <div className="absolute inset-0">
             <Image
-              src="/assets/auth.jpg"
+              src="/assets/regestration.jpg"
               alt="Background"
               fill
               className="object-cover opacity-50"
@@ -51,10 +52,10 @@ export default function SignUpPage() {
               </svg>
             </div>
             <h2 className="mb-2 text-4xl font-bold">
-              Welcome to Walk Throughz
+              Willkommen bei Walk Throughz
             </h2>
             <p className="max-w-md text-gray-300">
-              Registriere Dich und erhalte einen 10% Gutschein per E-Mail.
+             Registriere dich heute und erhalten Zugang zum Kundenportal.
             </p>
           </div>
         </div>
