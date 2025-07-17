@@ -123,7 +123,7 @@ export default function ContactForm() {
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
-                            placeholder="Geben Sie Ihre E-Mail-Adresse ein"
+                            placeholder="Gib deine E-Mail-Adresse ein "
                             className="w-full p-3 bg-[#212121] border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300 text-white text-sm sm:text-base"
                             disabled={isSubmitting}
                             required
@@ -139,7 +139,7 @@ export default function ContactForm() {
                             name="phone"
                             value={formData.phone}
                             onChange={handleChange}
-                            placeholder="Geben Sie Ihre Telefonnummer ein"
+                            placeholder="Gib deine Telefonnummer ein "
                             className="w-full p-3 bg-[#212121] border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300 text-white text-sm sm:text-base"
                             disabled={isSubmitting}
                         />
@@ -154,7 +154,7 @@ export default function ContactForm() {
                         name="message"
                         value={formData.message}
                         onChange={handleChange}
-                        placeholder="Geben Sie Ihre Nachricht ein"
+                        placeholder="Gib deine Nachricht ein "
                         className="w-full h-[150px] sm:h-[189px] lg:h-[189px] p-3 pb-8 bg-[#212121] border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300 text-white text-sm sm:text-base"
                         disabled={isSubmitting}
                         required

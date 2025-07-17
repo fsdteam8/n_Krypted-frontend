@@ -644,7 +644,7 @@ export function DealsCard({
                 },
               }}
             >
-              <div className="scale-y-[111%] scale-x-[113%]">
+              <div className="scale-y-[111%] scale-x-[113%] ">
                 <StripeCheckout bookingId={bookingId} price={price} />
               </div>
             </Elements>
