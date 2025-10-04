@@ -73,6 +73,28 @@ interface UniqueLocation {
   cities: string[];
 }
 
+// Helper functions for location normalization
+const normalizeKey = (s?: string | null) =>
+  (s ?? "").normalize("NFKC").replace(/\s+/g, " ").trim().toLowerCase();
+
+const prettyLabel = (s?: string | null) => {
+  const base = (s ?? "").normalize("NFKC").replace(/\s+/g, " ").trim();
+  return base.replace(/\p{L}[\p{L}\p{M}'-]*/gu, (word) =>
+    word
+      .split("-")
+      .map((part) =>
+        part
+          ? part.charAt(0).toLocaleUpperCase() +
+            part.slice(1).toLocaleLowerCase()
+          : part
+      )
+      .join("-")
+  );
+};
+
+const eqNorm = (a?: string | null, b?: string | null) =>
+  normalizeKey(a) === normalizeKey(b);
+
 // Custom hook for managing URL parameters with debouncing
 function useURLParams() {
   const router = useRouter();
@@ -186,8 +208,6 @@ const ManualSlider = React.memo(
       setIsDragging(null);
       onDragEnd?.();
     }, [onDragEnd]);
-
-    // simple fallback: strip basic HTML tags and take first 3 sentences
 
     const handleTouchStart = (e: React.TouchEvent, thumb: "min" | "max") => {
       e.preventDefault();
@@ -378,16 +398,22 @@ function DealsPage() {
     currentDealType,
   ]);
 
-  // Fetch all deals to get unique locations
-  const { data: allDealsData } = useQuery({
-    queryKey: ["all-deals-locations"],
+  // Fetch all deals to get unique locations using useQuery (like in categories)
+  const { data: allDealsData, isLoading: isLoadingLocations } = useQuery({
+    queryKey: ["deals-all-locations"],
     queryFn: async () => {
       try {
-        const { data } = await axiosInstance.get("/api/deals");
-        console.log("All Deals Data:", data); // Debug log
+        const { data } = await axiosInstance.get("/api/deals", {
+          params: {
+            page: 1,
+            limit: 100000,
+            showAll: true,
+          },
+        });
+        console.log("All Deals Data for Locations:", data);
         return data.deals || [];
       } catch (error) {
-        console.error("Error fetching all deals:", error);
+        console.error("Error fetching all deals for locations:", error);
         return [];
       }
     },
@@ -422,13 +448,13 @@ function DealsPage() {
       params.set("limit", "10");
       if (search.trim()) params.set("title", search.trim());
 
-      console.log("API Request Params:", params.toString()); // Debug log
+      console.log("API Request Params:", params.toString());
 
       try {
         const { data } = await axiosInstance.get(
           `/api/deals?showAll=true&${params.toString()}`
         );
-        console.log("API Response:", data); // Debug log
+        console.log("API Response:", data);
         return data;
       } catch (error) {
         console.error("Error fetching deals:", error);
@@ -474,29 +500,55 @@ function DealsPage() {
     fetchCategories();
   }, []);
 
-  // Extract unique locations
+  // Extract unique locations from all deals data (like in the search bar implementation)
   useEffect(() => {
     if (allDealsData && allDealsData.length > 0) {
-      const locationMap = new Map<string, Set<string>>();
+      const locationMap = new Map<
+        string,
+        { label: string; cities: Map<string, string> }
+      >();
+
       allDealsData.forEach((deal: Deal) => {
-        const country = deal.location.country;
-        const city = deal.location.city;
+        const country = deal.location?.country;
+        const city = deal.location?.city;
+        
         if (country && city) {
-          if (!locationMap.has(country)) {
-            locationMap.set(country, new Set());
+          const countryKey = normalizeKey(country);
+          const cityKey = normalizeKey(city);
+          
+          if (!countryKey || !cityKey) return;
+
+          if (!locationMap.has(countryKey)) {
+            locationMap.set(countryKey, {
+              label: prettyLabel(country),
+              cities: new Map(),
+            });
           }
-          locationMap.get(country)!.add(city);
+          
+          const entry = locationMap.get(countryKey)!;
+          if (!entry.cities.has(cityKey)) {
+            entry.cities.set(cityKey, prettyLabel(city));
+          }
         }
       });
 
-      const uniqueLocs: UniqueLocation[] = Array.from(locationMap.entries())
-        .map(([country, cities]) => ({
-          country,
-          cities: Array.from(cities).sort(),
+      // Convert to array and sort
+      const uniqueLocs: UniqueLocation[] = Array.from(locationMap.values())
+        .map((v) => ({
+          country: v.label,
+          cities: Array.from(v.cities.values()).sort((a, b) =>
+            a.localeCompare(b, undefined, { sensitivity: "base" })
+          ),
         }))
-        .sort((a, b) => a.country.localeCompare(b.country));
+        .sort((a, b) =>
+          a.country.localeCompare(b.country, undefined, { sensitivity: "base" })
+        );
 
+      console.log("Processed unique locations:", uniqueLocs);
       setUniqueLocations(uniqueLocs);
+    } else {
+      console.log("No deals data available for locations");
+      setUniqueLocations([]);
     }
   }, [allDealsData]);
 
@@ -517,21 +569,26 @@ function DealsPage() {
   };
 
   const handleCountrySelect = (country: string) => {
-    setSelectedCountry(country);
+    const newCountry = eqNorm(country, selectedCountry)
+      ? ""
+      : prettyLabel(country);
+    setSelectedCountry(newCountry);
     setSelectedCity("");
     updateParams({
-      country: country || null,
+      country: newCountry || null,
       city: null,
     });
     setIsFilterOpen(false);
   };
 
   const handleCitySelect = (city: string, country: string) => {
-    setSelectedCountry(country);
-    setSelectedCity(city);
+    const newCity = eqNorm(city, selectedCity) ? "" : prettyLabel(city);
+    const canonCountry = prettyLabel(country);
+    setSelectedCity(newCity);
+    setSelectedCountry(canonCountry);
     updateParams({
-      country: country || null,
-      city: city || null,
+      city: newCity || null,
+      country: canonCountry || null,
     });
     setIsFilterOpen(false);
   };
@@ -633,15 +690,17 @@ function DealsPage() {
       </div>
 
       {/* Locations */}
-      <div>
+      <div className="overflow-hidden">
         <h3 className="text-lg sm:text-xl lg:text-[20px] font-semibold text-[#212121] mb-3 sm:mb-4">
           Städte
         </h3>
-        {uniqueLocations.length === 0 ? (
+        {isLoadingLocations ? (
+          <div className="py-2 text-sm sm:text-base">
+            Standorte werden geladen...
+          </div>
+        ) : uniqueLocations.length === 0 ? (
           <div className="py-2 text-sm sm:text-base text-gray-500">
-            {allDealsData
-              ? "Keine Standorte verfügbar"
-              : "Standorte werden geladen..."}
+            Keine Standorte verfügbar
           </div>
         ) : (
           <DropdownMenu>
@@ -674,34 +733,39 @@ function DealsPage() {
               >
                 Alle Städte
               </div>
-              {uniqueLocations.map(({ country, cities }) => (
-                <div key={country} className="relative group w-full">
-                  <div
-                    onClick={() => handleCountrySelect(country)}
-                    className={`flex justify-between items-center px-4 py-2 cursor-pointer hover:bg-gray-100 ${
-                      selectedCountry === country && !selectedCity
-                        ? "bg-gray-100"
-                        : ""
-                    }`}
-                  >
-                    <span>{country}</span>
-                    <ChevronDown className="h-4 w-4 transform group-hover:rotate-180 transition-transform" />
+              {uniqueLocations.map(({ country, cities }) => {
+                const isActiveCountry =
+                  eqNorm(selectedCountry, country) && !selectedCity;
+                return (
+                  <div key={country} className="relative group w-full">
+                    <div
+                      onClick={() => handleCountrySelect(country)}
+                      className={`flex justify-between items-center px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+                        isActiveCountry ? "bg-gray-100" : ""
+                      }`}
+                    >
+                      <span>{country}</span>
+                      <ChevronDown className="h-4 w-4 transform group-hover:rotate-180 transition-transform" />
+                    </div>
+                    <div className="absolute left-full top-0 hidden group-hover:flex flex-col bg-white border rounded-md shadow-md z-50 min-w-[160px]">
+                      {cities.map((city) => {
+                        const activeCity = eqNorm(selectedCity, city);
+                        return (
+                          <div
+                            key={city}
+                            onClick={() => handleCitySelect(city, country)}
+                            className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+                              activeCity ? "bg-gray-100" : ""
+                            }`}
+                          >
+                            {city}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                  <div className="absolute left-full top-0 hidden group-hover:flex flex-col bg-white border rounded-md shadow-md z-50 min-w-[160px]">
-                    {cities.map((city) => (
-                      <div
-                        key={city}
-                        onClick={() => handleCitySelect(city, country)}
-                        className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
-                          selectedCity === city ? "bg-gray-100" : ""
-                        }`}
-                      >
-                        {city}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </DropdownMenuContent>
           </DropdownMenu>
         )}
@@ -822,8 +886,8 @@ function DealsPage() {
     const plain =
       (deal.shortDescription && deal.shortDescription.trim()) ||
       (deal.description || "")
-        .replace(/<[^>]*>/g, " ") // strip tags
-        .replace(/\s+/g, " ") // collapse spaces
+        .replace(/<[^>]*>/g, " ")
+        .replace(/\s+/g, " ")
         .trim();
 
     const sentences = plain.match(/[^.!?]+[.!?]+/g);
@@ -893,7 +957,7 @@ function DealsPage() {
                         status={deal.status}
                         title={deal.title}
                         image={deal.images[0] || "/assets/deals.png"}
-                        description={getShortOrFallback(deal)} // <-- change this line
+                        description={getShortOrFallback(deal)}
                         price={deal.price}
                         time={deal.time}
                         createdAt={deal.createdAt}
