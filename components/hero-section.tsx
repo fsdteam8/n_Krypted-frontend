@@ -21,8 +21,8 @@ export function HeroBanner() {
         <div className="container">
           <div className="max-w-2xl ">
             <div className="text-3xl md:text-4xl lg:text-[37px] font-bold text-white mb-4">
-              Langeweile in der Stadt?
-              <div className="mt-3">Nicht mit uns!</div>
+              Entdecke, was deine Stadt
+              <div className="mt-3">wirklich ausmacht</div>
             </div>
             <div className="mb-8">
               <div className="text-white/90 text-sm md:text-base max-w-2md">
