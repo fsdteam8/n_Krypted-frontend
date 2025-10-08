@@ -81,7 +81,7 @@ const BlogDetails: React.FC<BlogDetailsProps> = ({ id }) => {
     <div className="py-10">
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl md:text-[28px] leading-[110%] font-bold text-white pb-4">
+          <h1 className="text-[18px] md:text-[24px] leading-[110%] font-bold text-white pb-4">
             {blog.title}
           </h1>
           <div className="flex  items-center space-x-4">
@@ -127,7 +127,10 @@ const BlogDetails: React.FC<BlogDetailsProps> = ({ id }) => {
             <div
               className="list-item list-none !text-white blogcontent mt-10"
               dangerouslySetInnerHTML={{
-                __html: blog?.description ?? "Blog Description",
+                __html: (blog?.description ?? "Blog Description").replace(
+                  /<img /g,
+                  '<img style="max-height:700px;height:auto;width:auto;display:block;margin:auto;" '
+                ),
               }}
             />
           </>

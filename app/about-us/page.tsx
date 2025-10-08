@@ -16,14 +16,14 @@ const page = () => {
         title="Was wollen wir wirklich?"
         imge="/assets/Über_Uns.jpg"
       />
-      <div className="mt-18 lg:mt-24 container">
-        <div className="text-center mt-8">
-          <h1 className="text-[25px] lg:text-[34px] font-semibold text-[#FFFFFF]">
-            Walk Throughz ist eine Plattform für echte Stadterlebnisse –
-            lokal, lebendig und persönlich.
+      <div className="mt-10 lg:mt-10 container">
+        <div className="text-center ">
+          <h1 className="text-[25px] lg:text-[32px] font-semibold text-[#FFFFFF]">
+            Walk Throughz ist eine Plattform für echte Stadterlebnisse{" "}–
+            <div> lokal, lebendig und persönlich.</div>
           </h1>
 
-          <div className="mt-5 text-base lg:text-xl text-[#E0E0E0] leading-[150%]">
+          <div className="mt-5 text-base lg:text-[16px] text-[#E0E0E0] leading-[150%]">
             Wir bringen Menschen mit besonderen Orten und spannenden Themen
             zusammen.{" "}
             <p>
