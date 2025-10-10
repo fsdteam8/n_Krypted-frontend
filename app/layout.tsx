@@ -1,5 +1,4 @@
-// app/layout.tsx or app/layout.js
-
+// app/layout.tsx
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import AppProvider from "@/Provider/AppProvider";
@@ -17,11 +16,37 @@ const poppins = Poppins({
   variable: "--font-poppins",
 });
 
-// Site metadata
 export const metadata = {
   title: "Walk Throughz",
+  description:
+    "Explore and connect with unique experiences around the world — powered by Walk Throughz.",
   icons: {
     icon: "/favicon.png",
+  },
+  openGraph: {
+    title: "Walk Throughz",
+    description:
+      "Discover and share amazing travel experiences with Walk Throughz.",
+    url: "https://walkthroughz.com",
+    siteName: "Walk Throughz",
+    images: [
+      {
+        url: "https://res.cloudinary.com/dftvlksve/image/upload/v1756129458/Image20250819174530_hjqear.jpg", // Replace with a real hosted image
+        width: 1200,
+        height: 630,
+        alt: "Walk Throughz Preview Image",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Walk Throughz",
+    description:
+      "Discover and share amazing travel experiences with Walk Throughz.",
+    images: ["https://walkthroughz.com/og-image.jpg"], // Same as OG image
+    creator: "@walkthroughz", // Optional: your X handle
   },
 };
 
@@ -37,7 +62,7 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} font-poppins antialiased bg-[#212121]`}
       >
-        {/* Dynamically injected PayPal Script */}
+        {/* PayPal SDK */}
         {paypalClientId && (
           <Script
             src={`https://www.paypal.com/sdk/js?client-id=${paypalClientId}&currency=EUR&intent=capture&disable-funding=paylater,venmo`}

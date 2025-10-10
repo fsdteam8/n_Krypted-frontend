@@ -112,7 +112,7 @@ export function TestimonialSection() {
               height={50}
               className="h-[25px] w-[35px] text-white"
             />
-            <p className="text-white text-sm md:text-[16px] overflow-hidden">
+            <p className="text-white text-sm md:text-[17px] overflow-hidden">
               {feedback.message}
             </p>
           </div>

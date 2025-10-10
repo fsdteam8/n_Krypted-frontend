@@ -72,7 +72,7 @@ function Blogs() {
         <h1 className="text-[25px] lg:text-[32px] font-bold mb-8 text-center text-white">
           Stadtgedanken & Durchblicke
         </h1>
-        <div className="text-center text-gray-300 mb-12 text-base lg:text-[16px]">
+        <div className="text-center text-gray-300 mb-12 text-base lg:text-[18px]">
           Unser Blog ist für alle, die Städte lieben, mit all ihren Ecken, Ideen
           und Begegnungen. Bei uns geht&apos;s um Themen, die das urbane Leben
           bewegen: Wie entwickeln sich Städte? Wie entdeckt man neue
