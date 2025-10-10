@@ -39,7 +39,7 @@ const OurVision = () => {
           <h3 className="text-xl sm:text-2xl lg:text-[26px] text-white font-semibold mt-4 sm:mt-5">
             Was möchte Walk Throughz langfristig erreichen?
           </h3>
-          <p className="hyphens-auto text-white text-sm sm:text-base lg:text-[16px] leading-[150%] font-normal mt-4 sm:mt-5 ">
+          <p className="hyphens-auto text-white text-sm sm:text-base lg:text-[17px] leading-[150%] font-normal mt-4 sm:mt-5 ">
             Wir träumen von Städten, die nicht nur bewohnt, sondern wirklich
             gelebt werden, von Menschen, die sich wieder als Teil eines größeren
             Ganzen fühlen. Langfristig wollen wir mit Walk Throughz ein neues

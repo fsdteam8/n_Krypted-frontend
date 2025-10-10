@@ -20,7 +20,7 @@ export function HeroBanner() {
       <div className="relative h-full flex items-center">
         <div className="container">
           <div className="max-w-2xl ">
-            <div className="text-3xl md:text-4xl lg:text-[37px] font-bold text-white mb-4">
+            <div className="text-3xl md:text-4xl lg:text-[36px] font-bold text-white mb-4">
               Entdecke, was deine Stadt
               <div className="mt-3">wirklich ausmacht</div>
             </div>
