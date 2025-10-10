@@ -19,34 +19,36 @@ const poppins = Poppins({
 export const metadata = {
   title: "Walk Throughz",
   description:
-    "Explore and connect with unique experiences around the world — powered by Walk Throughz.",
+    "Entdecke, was deine Stadt wirklich ausmacht – mit Walk Throughz erlebst du sie neu: durch kurze, persönliche Einblicke direkt von den Menschen, die sie gestalten.",
   icons: {
     icon: "/favicon.png",
   },
   openGraph: {
     title: "Walk Throughz",
     description:
-      "Discover and share amazing travel experiences with Walk Throughz.",
+      "Erlebe deine Stadt neu – durch authentische Einblicke von den Menschen, die sie gestalten. In kleinen Gruppen entdeckst du neue Perspektiven, spannende Themen und triffst Gleichgesinnte.",
     url: "https://walkthroughz.com",
     siteName: "Walk Throughz",
     images: [
       {
-        url: "https://res.cloudinary.com/dftvlksve/image/upload/v1756129458/Image20250819174530_hjqear.jpg", // Replace with a real hosted image
+        url: "https://res.cloudinary.com/dftvlksve/image/upload/v1756129458/Image20250819174530_hjqear.jpg",
         width: 1200,
         height: 630,
-        alt: "Walk Throughz Preview Image",
+        alt: "Walk Throughz Vorschau",
       },
     ],
-    locale: "en_US",
+    locale: "de_DE",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Walk Throughz",
     description:
-      "Discover and share amazing travel experiences with Walk Throughz.",
-    images: ["https://walkthroughz.com/og-image.jpg"], // Same as OG image
-    creator: "@walkthroughz", // Optional: your X handle
+      "Entdecke neue Perspektiven und erlebe deine Stadt neu – mit Walk Throughz.",
+    images: [
+      "https://res.cloudinary.com/dftvlksve/image/upload/v1756129458/Image20250819174530_hjqear.jpg",
+    ],
+    creator: "@walkthroughz",
   },
 };
 
