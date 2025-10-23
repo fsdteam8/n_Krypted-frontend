@@ -52,11 +52,35 @@ export default function ProductImageViewer({ images, selectedIndex, onSelect, ti
     const r = container.getBoundingClientRect();
     return { maxX: ((z - 1) * r.width) / 2, maxY: ((z - 1) * r.height) / 2 };
   };
-  const setZoomClamped = useCallback((z: number, fs = false) => {
-    const next = clamp(z, MIN_ZOOM, MAX_ZOOM);
-    if (fs) { fsZoomRef.current = next; setFsZoomUI(next); applyTransform(fsImageWrapRef.current, fsPanRef.current, next); }
-    else { zoomRef.current = next; setZoomUI(next); applyTransform(imageWrapRef.current, panRef.current, next); }
-  }, []);
+const setZoomClamped = (z: number, fs = false) => {
+  const next = clamp(z, MIN_ZOOM, MAX_ZOOM);
+
+  if (fs) {
+    fsZoomRef.current = next;
+    setFsZoomUI(next);
+    applyTransform(fsImageWrapRef.current, fsPanRef.current, next);
+  } else {
+    zoomRef.current = next;
+    setZoomUI(next);
+    applyTransform(imageWrapRef.current, panRef.current, next);
+  }
+
+  // 🧩 Auto-center when zooming back to 1
+  if (next === 1) {
+    const wrap = fs ? fsImageWrapRef.current : imageWrapRef.current;
+    const pan = fs ? fsPanRef.current : panRef.current;
+    if (wrap) {
+      wrap.style.transition = "transform 0.25s ease-out";
+      pan.x = 0;
+      pan.y = 0;
+      requestAnimationFrame(() => applyTransform(wrap, pan, 1));
+      setTimeout(() => {
+        if (wrap) wrap.style.transition = "";
+      }, 250);
+    }
+  }
+};
+
   const resetZoomPan = useCallback((fs = false) => {
     if (fs) { fsZoomRef.current = 1; fsPanRef.current = { x: 0, y: 0 }; setFsZoomUI(1); applyTransform(fsImageWrapRef.current, fsPanRef.current, 1); }
     else { zoomRef.current = 1; panRef.current = { x: 0, y: 0 }; setZoomUI(1); applyTransform(imageWrapRef.current, panRef.current, 1); }
