@@ -189,23 +189,31 @@ export default function ProductImageViewer({
       const d = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
       setZoomClamped(zoomRef.current + d, false);
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     el.addEventListener("wheel", handler, { passive: false });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return () => el.removeEventListener("wheel", handler as any);
   }, [selectedIndex]);
 
   // double click/tap zoom toggle
-  const onDoubleClick = (fs = false) => (e: React.MouseEvent) => {
-    const zr = fs ? fsZoomRef : zoomRef;
-    const pr = fs ? fsPanRef : panRef;
-    const wrap = fs ? fsImageWrapRef : imageWrapRef;
-    const next = zr.current > 1 ? 1 : 2;
-    zr.current = next;
-    if (next === 1) pr.current = { x: 0, y: 0 };
-    fs ? setFsZoomUI(next) : setZoomUI(next);
-    applyTransform(wrap.current, pr.current, next);
-    if (!fs && next > 1) e.stopPropagation();
-  };
+const onDoubleClick = (fs = false) => (e: React.MouseEvent) => {
+  const zr = fs ? fsZoomRef : zoomRef;
+  const pr = fs ? fsPanRef : panRef;
+  const wrap = fs ? fsImageWrapRef : imageWrapRef;
+  const next = zr.current > 1 ? 1 : 2;
+  zr.current = next;
+
+  if (next === 1) pr.current = { x: 0, y: 0 };
+
+  if (fs) {
+    setFsZoomUI(next);
+  } else {
+    setZoomUI(next);
+  }
+
+  applyTransform(wrap.current, pr.current, next);
+  if (!fs && next > 1) e.stopPropagation();
+};
+
 
   // FS wheel
   useEffect(() => {
@@ -218,8 +226,8 @@ export default function ProductImageViewer({
       const d = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
       setZoomClamped(fsZoomRef.current + d, true);
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     el.addEventListener("wheel", handler, { passive: false });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return () => el.removeEventListener("wheel", handler as any);
   }, [isFullscreen]);
 
