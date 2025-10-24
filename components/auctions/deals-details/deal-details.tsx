@@ -490,7 +490,7 @@ export default function DealDetails({ auctionId }: AuctionDetailsProps) {
                 </TabsList>
               </Tabs>
             ) : (
-              <div className="text-white py-[2px]">
+              <div className="text-white">
                 {allSchedulesFull || noSchedulesAvailable
                   ? "Momentan sind keine Buchungszeiten für diesen Walk Through verfügbar."
                   : "Momentan sind keine Buchungszeiten für diesen Walk Through verfügbar."}
