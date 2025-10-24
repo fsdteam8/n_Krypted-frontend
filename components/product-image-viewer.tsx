@@ -15,6 +15,8 @@ interface ProductImageViewerProps {
   showIndex?: boolean;
   /** Adjust to your layout; smaller on mobile by default */
   heightClass?: string; // e.g. "h-[340px] md:h-[391px]"
+  /** Allow zooming in the non-fullscreen overview (default: false) */
+  enableOverviewZoom?: boolean;
 }
 
 export default function ProductImageViewer({
@@ -27,6 +29,7 @@ export default function ProductImageViewer({
   showIndex = false,
   // ↓ reduced mobile height
   heightClass = "h-[360px] md:h-[391px]",
+  enableOverviewZoom = false,
 }: ProductImageViewerProps) {
   const MIN_ZOOM = 1, MAX_ZOOM = 4, ZOOM_STEP = 0.2;
 
@@ -57,9 +60,12 @@ export default function ProductImageViewer({
   const currentImage = images?.[selectedIndex];
   const isSingle = !images || images.length <= 1;
 
+  const overviewZoomOn = enableOverviewZoom;
+
   const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
   const applyTransform = (el: HTMLDivElement | null, pan: { x: number; y: number }, z: number) => {
-    if (!el) return; el.style.transform = `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${z})`;
+    if (!el) return;
+    el.style.transform = `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${z})`;
   };
   const getPanBounds = (container: HTMLDivElement, z: number) => {
     const r = container.getBoundingClientRect();
@@ -69,10 +75,12 @@ export default function ProductImageViewer({
   const setZoomClamped = (z: number, fs = false) => {
     const next = clamp(z, MIN_ZOOM, MAX_ZOOM);
     if (fs) {
-      fsZoomRef.current = next; setFsZoomUI(next);
+      fsZoomRef.current = next;
+      setFsZoomUI(next);
       applyTransform(fsImageWrapRef.current, fsPanRef.current, next);
     } else {
-      zoomRef.current = next; setZoomUI(next);
+      zoomRef.current = next;
+      setZoomUI(next);
       applyTransform(imageWrapRef.current, panRef.current, next);
     }
     if (next === 1) {
@@ -80,24 +88,34 @@ export default function ProductImageViewer({
       const pan = fs ? fsPanRef.current : panRef.current;
       if (wrap) {
         wrap.style.transition = "transform 0.25s ease-out";
-        pan.x = 0; pan.y = 0;
+        pan.x = 0;
+        pan.y = 0;
         requestAnimationFrame(() => applyTransform(wrap, pan, 1));
-        setTimeout(() => { if (wrap) wrap.style.transition = ""; }, 250);
+        setTimeout(() => {
+          if (wrap) wrap.style.transition = "";
+        }, 250);
       }
     }
   };
 
   const resetZoomPan = React.useCallback((fs = false) => {
     if (fs) {
-      fsZoomRef.current = 1; fsPanRef.current = { x: 0, y: 0 }; setFsZoomUI(1);
+      fsZoomRef.current = 1;
+      fsPanRef.current = { x: 0, y: 0 };
+      setFsZoomUI(1);
       applyTransform(fsImageWrapRef.current, fsPanRef.current, 1);
     } else {
-      zoomRef.current = 1; panRef.current = { x: 0, y: 0 }; setZoomUI(1);
+      zoomRef.current = 1;
+      panRef.current = { x: 0, y: 0 };
+      setZoomUI(1);
       applyTransform(imageWrapRef.current, panRef.current, 1);
     }
   }, []);
 
-  useEffect(() => { if (embla && embla.selectedScrollSnap() !== selectedIndex) embla.scrollTo(selectedIndex, true); }, [embla, selectedIndex]);
+  useEffect(() => {
+    if (embla && embla.selectedScrollSnap() !== selectedIndex) embla.scrollTo(selectedIndex, true);
+  }, [embla, selectedIndex]);
+
   useEffect(() => {
     if (!embla) return;
     const onSel = () => onSelect(embla.selectedScrollSnap());
@@ -105,11 +123,21 @@ export default function ProductImageViewer({
     embla.on("reInit", onSel);
   }, [embla, onSelect]);
 
-  useEffect(() => { resetZoomPan(false); if (isFullscreen) resetZoomPan(true); }, [selectedIndex, isFullscreen, resetZoomPan]);
+  useEffect(() => {
+    resetZoomPan(false);
+    if (isFullscreen) resetZoomPan(true);
+  }, [selectedIndex, isFullscreen, resetZoomPan]);
 
-  useEffect(() => { document.body.style.overflow = isFullscreen ? "hidden" : ""; return () => { document.body.style.overflow = ""; }; }, [isFullscreen]);
+  useEffect(() => {
+    document.body.style.overflow = isFullscreen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isFullscreen]);
 
+  // === Overview pointer handlers (guarded by overviewZoomOn) ===
   const onPointerDown = (e: React.PointerEvent) => {
+    if (!overviewZoomOn) return;
     if (!containerRef.current) return;
     if (zoomRef.current > 1) e.stopPropagation();
     (e.target as Element).setPointerCapture?.(e.pointerId);
@@ -123,7 +151,9 @@ export default function ProductImageViewer({
       lastPinchDist.current = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
     }
   };
+
   const onPointerMove = (e: React.PointerEvent) => {
+    if (!overviewZoomOn) return;
     if (!containerRef.current) return;
     const map = activePointers.current;
     if (!map.has(e.pointerId)) return;
@@ -136,7 +166,8 @@ export default function ProductImageViewer({
       lastPinchDist.current = dist;
 
       const next = clamp(zoomRef.current * scale, MIN_ZOOM, MAX_ZOOM);
-      zoomRef.current = next; setZoomUI(next);
+      zoomRef.current = next;
+      setZoomUI(next);
 
       const { maxX, maxY } = getPanBounds(containerRef.current, next);
       panRef.current = {
@@ -161,13 +192,17 @@ export default function ProductImageViewer({
       e.stopPropagation();
     }
   };
+
   const onPointerUp = (e: React.PointerEvent) => {
+    if (!overviewZoomOn) return;
     activePointers.current.delete(e.pointerId);
     if (activePointers.current.size < 2) lastPinchDist.current = null;
     isPanningRef.current = false;
   };
 
+  // Disable wheel zoom in overview unless explicitly enabled
   useEffect(() => {
+    if (!overviewZoomOn) return; // no wheel zoom in overview
     const el = containerRef.current;
     if (!el) return;
     const handler = (e: WheelEvent) => {
@@ -179,25 +214,29 @@ export default function ProductImageViewer({
     el.addEventListener("wheel", handler, { passive: false });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return () => el.removeEventListener("wheel", handler as any);
-  }, [selectedIndex]);
+  }, [selectedIndex, overviewZoomOn]);
 
-  const onDoubleClick = (fs = false) => (e: React.MouseEvent) => {
-    const zr = fs ? fsZoomRef : zoomRef;
-    const pr = fs ? fsPanRef : panRef;
-    const wrap = fs ? fsImageWrapRef : imageWrapRef;
-    const next = zr.current > 1 ? 1 : 2;
-    zr.current = next;
-    if (next === 1) pr.current = { x: 0, y: 0 };
-    if (fs) {
-  setFsZoomUI(next);
-} else {
-  setZoomUI(next);
-}
+  const onDoubleClick =
+    (fs = false) =>
+    (e: React.MouseEvent) => {
+      // For overview, respect overviewZoomOn
+      if (!fs && !overviewZoomOn) return;
+      const zr = fs ? fsZoomRef : zoomRef;
+      const pr = fs ? fsPanRef : panRef;
+      const wrap = fs ? fsImageWrapRef : imageWrapRef;
+      const next = zr.current > 1 ? 1 : 2;
+      zr.current = next;
+      if (next === 1) pr.current = { x: 0, y: 0 };
+      if (fs) {
+        setFsZoomUI(next);
+      } else {
+        setZoomUI(next);
+      }
+      applyTransform(wrap.current, pr.current, next);
+      if (!fs && next > 1) e.stopPropagation();
+    };
 
-    applyTransform(wrap.current, pr.current, next);
-    if (!fs && next > 1) e.stopPropagation();
-  };
-
+  // === Fullscreen zoom (unchanged) ===
   useEffect(() => {
     if (!isFullscreen) return;
     const el = fsContainerRef.current;
@@ -258,18 +297,23 @@ export default function ProductImageViewer({
                   ref={i === selectedIndex ? containerRef : null}
                   className={`group relative w-full ${heightClass} rounded-md overflow-hidden bg-transparent ring-1 ring-white/10`}
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  style={{ touchAction: zoomRef.current > 1 ? "none" : "pan-y pinch-zoom" as any }}
-                  onPointerDown={i === selectedIndex ? onPointerDown : undefined}
-                  onPointerMove={i === selectedIndex ? onPointerMove : undefined}
-                  onPointerUp={i === selectedIndex ? onPointerUp : undefined}
-                  onPointerCancel={i === selectedIndex ? onPointerUp : undefined}
-                  onDoubleClick={i === selectedIndex ? onDoubleClick(false) : undefined}
+                  style={{
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    touchAction: overviewZoomOn && zoomRef.current > 1 ? ("none" as any) : ("pan-y" as any),
+                  }}
+                  onPointerDown={i === selectedIndex && overviewZoomOn ? onPointerDown : undefined}
+                  onPointerMove={i === selectedIndex && overviewZoomOn ? onPointerMove : undefined}
+                  onPointerUp={i === selectedIndex && overviewZoomOn ? onPointerUp : undefined}
+                  onPointerCancel={i === selectedIndex && overviewZoomOn ? onPointerUp : undefined}
+                  onDoubleClick={i === selectedIndex && overviewZoomOn ? onDoubleClick(false) : undefined}
                   onContextMenu={(e) => e.preventDefault()}
                 >
                   <div
                     ref={i === selectedIndex ? imageWrapRef : null}
                     className="absolute inset-0 flex items-center justify-center will-change-transform overflow-hidden rounded-md"
-                    style={{ transform: `translate3d(${panRef.current.x}px, ${panRef.current.y}px, 0) scale(${zoomRef.current})` }}
+                    style={{
+                      transform: `translate3d(${panRef.current.x}px, ${panRef.current.y}px, 0) scale(${zoomRef.current})`,
+                    }}
                   >
                     <Image
                       src={src || "/placeholder.svg"}
@@ -308,7 +352,10 @@ export default function ProductImageViewer({
 
                   {i === selectedIndex && (
                     <button
-                      onClick={() => { setIsFullscreen(true); resetZoomPan(true); }}
+                      onClick={() => {
+                        setIsFullscreen(true);
+                        resetZoomPan(true);
+                      }}
                       className="absolute bottom-3 right-3 p-1 text-white/80 hover:text-white hover:bg-white/10 rounded-md transition"
                       aria-label="View fullscreen"
                       title="Fullscreen"
@@ -322,24 +369,41 @@ export default function ProductImageViewer({
           </CarouselContent>
         </Carousel>
 
-        {(showZoomControls || showIndex) && (
+        {( (showZoomControls && (isFullscreen || overviewZoomOn)) || showIndex) && (
           <div className="mt-2 flex items-center justify-between gap-2 flex-wrap">
-            {showZoomControls ? (
+            {showZoomControls && (isFullscreen || overviewZoomOn) ? (
               <div className="flex gap-2">
-                <button onClick={() => setZoomClamped(zoomRef.current - ZOOM_STEP)} disabled={zoomRef.current <= MIN_ZOOM} className="p-1.5 rounded-md bg-transparent hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed text-white/90 hover:text-white transition border border-white/10" aria-label="Zoom out">
+                <button
+                  onClick={() => setZoomClamped(zoomRef.current - ZOOM_STEP)}
+                  disabled={!overviewZoomOn || zoomRef.current <= MIN_ZOOM}
+                  className="p-1.5 rounded-md bg-transparent hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed text-white/90 hover:text-white transition border border-white/10"
+                  aria-label="Zoom out"
+                >
                   <ZoomOut className="w-4 h-4" />
                 </button>
                 <div className="px-2.5 py-1.5 rounded-md bg-transparent text-white/90 text-sm font-medium min-w-[60px] text-center ring-1 ring-white/10">
                   {Math.round(zoomUI * 100)}%
                 </div>
-                <button onClick={() => setZoomClamped(zoomRef.current + ZOOM_STEP)} disabled={zoomRef.current >= MAX_ZOOM} className="p-1.5 rounded-md bg-transparent hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed text-white/90 hover:text-white transition border border-white/10" aria-label="Zoom in">
+                <button
+                  onClick={() => setZoomClamped(zoomRef.current + ZOOM_STEP)}
+                  disabled={!overviewZoomOn || zoomRef.current >= MAX_ZOOM}
+                  className="p-1.5 rounded-md bg-transparent hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed text-white/90 hover:text-white transition border border-white/10"
+                  aria-label="Zoom in"
+                >
                   <ZoomIn className="w-4 h-4" />
                 </button>
-                <button onClick={() => resetZoomPan(false)} disabled={zoomRef.current === 1 && panRef.current.x === 0 && panRef.current.y === 0} className="p-1.5 rounded-md bg-transparent hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed text-white/90 hover:text-white transition border border-white/10" aria-label="Reset zoom">
+                <button
+                  onClick={() => resetZoomPan(false)}
+                  disabled={!overviewZoomOn || (zoomRef.current === 1 && panRef.current.x === 0 && panRef.current.y === 0)}
+                  className="p-1.5 rounded-md bg-transparent hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed text-white/90 hover:text-white transition border border-white/10"
+                  aria-label="Reset zoom"
+                >
                   <RotateCcw className="w-4 h-4" />
                 </button>
               </div>
-            ) : <div />}
+            ) : (
+              <div />
+            )}
 
             {showIndex && <div className="text-sm text-gray-400 font-medium">{selectedIndex + 1} / {images.length}</div>}
           </div>
@@ -368,7 +432,12 @@ export default function ProductImageViewer({
         <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm flex flex-col">
           <div className="flex items-center justify-between p-4 border-b border-white/10">
             {showIndex ? <div className="text-white text-sm font-medium">{selectedIndex + 1} / {images.length}</div> : <div />}
-            <button onClick={() => setIsFullscreen(false)} className="p-2 rounded-md hover:bg-white/10 text-white transition" aria-label="Close fullscreen" title="Close">
+            <button
+              onClick={() => setIsFullscreen(false)}
+              className="p-2 rounded-md hover:bg-white/10 text-white transition"
+              aria-label="Close fullscreen"
+              title="Close"
+            >
               <X className="w-6 h-6" />
             </button>
           </div>
@@ -401,9 +470,13 @@ export default function ProductImageViewer({
                 const scale = dist / fsLastPinchDist.current;
                 fsLastPinchDist.current = dist;
                 const next = clamp(fsZoomRef.current * scale, MIN_ZOOM, MAX_ZOOM);
-                fsZoomRef.current = next; setFsZoomUI(next);
+                fsZoomRef.current = next;
+                setFsZoomUI(next);
                 const { maxX, maxY } = getPanBounds(fsContainerRef.current, next);
-                fsPanRef.current = { x: clamp(fsPanRef.current.x, -maxX, maxX), y: clamp(fsPanRef.current.y, -maxY, maxY) };
+                fsPanRef.current = {
+                  x: clamp(fsPanRef.current.x, -maxX, maxX),
+                  y: clamp(fsPanRef.current.y, -maxY, maxY),
+                };
                 requestAnimationFrame(() => applyTransform(fsImageWrapRef.current, fsPanRef.current, next));
                 return;
               }
@@ -412,13 +485,24 @@ export default function ProductImageViewer({
                 const dx = e.clientX - fsDragStartRef.current.x;
                 const dy = e.clientY - fsDragStartRef.current.y;
                 const { maxX, maxY } = getPanBounds(fsContainerRef.current, fsZoomRef.current);
-                const nextPan = { x: clamp(fsPanAtDownRef.current.x + dx, -maxX, maxX), y: clamp(fsPanAtDownRef.current.y + dy, -maxY, maxY) };
+                const nextPan = {
+                  x: clamp(fsPanAtDownRef.current.x + dx, -maxX, maxX),
+                  y: clamp(fsPanAtDownRef.current.y + dy, -maxY, maxY),
+                };
                 fsPanRef.current = nextPan;
                 requestAnimationFrame(() => applyTransform(fsImageWrapRef.current, nextPan, fsZoomRef.current));
               }
             }}
-            onPointerUp={(e) => { fsActivePointers.current.delete(e.pointerId); if (fsActivePointers.current.size < 2) fsLastPinchDist.current = null; fsIsPanningRef.current = false; }}
-            onPointerCancel={(e) => { fsActivePointers.current.delete(e.pointerId); if (fsActivePointers.current.size < 2) fsLastPinchDist.current = null; fsIsPanningRef.current = false; }}
+            onPointerUp={(e) => {
+              fsActivePointers.current.delete(e.pointerId);
+              if (fsActivePointers.current.size < 2) fsLastPinchDist.current = null;
+              fsIsPanningRef.current = false;
+            }}
+            onPointerCancel={(e) => {
+              fsActivePointers.current.delete(e.pointerId);
+              if (fsActivePointers.current.size < 2) fsLastPinchDist.current = null;
+              fsIsPanningRef.current = false;
+            }}
             onDoubleClick={onDoubleClick(true)}
           >
             <div
@@ -436,7 +520,7 @@ export default function ProductImageViewer({
               />
             </div>
 
-            {showZoomControls && fsZoomUI > 1 && (
+            {showZoomControls && isFullscreen && fsZoomUI > 1 && (
               <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-1 rounded-md text-sm font-medium">
                 {Math.round(fsZoomUI * 100)}%
               </div>

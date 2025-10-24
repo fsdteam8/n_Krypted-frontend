@@ -3,7 +3,7 @@ import Image from "next/image";
 const OurMission = () => {
   return (
     <section className="mt-12 md:mt-24 px-4 sm:px-6 lg:px-8">
-      <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-10 justify-between max-w-7xl mx-auto">
+      <div className="flex flex-col lg:flex-row items-start gap-8 lg:gap-10 justify-between max-w-7xl mx-auto">
         {/* Text Section */}
         <div className="flex-1">
           <div className="flex items-center gap-4">
