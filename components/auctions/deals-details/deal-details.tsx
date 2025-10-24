@@ -436,7 +436,7 @@ export default function DealDetails({ auctionId }: AuctionDetailsProps) {
 
         <div className="col-span-12 md:col-span-6 order-2">
           <div className="space-y-4">
-            <h1 className="text-xl md:text-2xl lg:text-[26px] font-semibold text-[#FFFFFF] leading-tight [overflow-wrap:anywhere]">
+            <h1 className="text-xl md:text-2xl lg:text-[25px] font-semibold text-[#FFFFFF] leading-tight [overflow-wrap:anywhere]">
               {auction?.title || "Property Title"}
             </h1>
 

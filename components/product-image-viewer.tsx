@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {  useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ZoomIn, ZoomOut, RotateCcw, Maximize2, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
@@ -15,6 +15,9 @@ interface ProductImageViewerProps {
   showArrows?: boolean;
   showZoomControls?: boolean;
   showIndex?: boolean;
+
+  /** Optional height classes to exactly match a page layout */
+  heightClass?: string; // e.g. "h-[491px] md:h-[391px]"
 }
 
 export default function ProductImageViewer({
@@ -25,8 +28,8 @@ export default function ProductImageViewer({
   showArrows = false,
   showZoomControls = false,
   showIndex = false,
+  heightClass = "h-[491px] md:h-[391px]", // matches your previous layout
 }: ProductImageViewerProps) {
-  // ---- zoom/pan refs ----
   const MIN_ZOOM = 1, MAX_ZOOM = 4, ZOOM_STEP = 0.2;
 
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -42,7 +45,6 @@ export default function ProductImageViewer({
 
   const [embla, setEmbla] = useState<CarouselApi>();
 
-  // fullscreen
   const [isFullscreen, setIsFullscreen] = useState(false);
   const fsContainerRef = useRef<HTMLDivElement | null>(null);
   const fsImageWrapRef = useRef<HTMLDivElement | null>(null);
@@ -56,6 +58,7 @@ export default function ProductImageViewer({
   const [fsZoomUI, setFsZoomUI] = useState(1);
 
   const currentImage = images?.[selectedIndex];
+  const isSingle = !images || images.length <= 1;
 
   const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
   const applyTransform = (el: HTMLDivElement | null, pan: { x: number; y: number }, z: number) => {
@@ -68,18 +71,14 @@ export default function ProductImageViewer({
 
   const setZoomClamped = (z: number, fs = false) => {
     const next = clamp(z, MIN_ZOOM, MAX_ZOOM);
-
     if (fs) {
-      fsZoomRef.current = next;
-      setFsZoomUI(next);
+      fsZoomRef.current = next; setFsZoomUI(next);
       applyTransform(fsImageWrapRef.current, fsPanRef.current, next);
     } else {
-      zoomRef.current = next;
-      setZoomUI(next);
+      zoomRef.current = next; setZoomUI(next);
       applyTransform(imageWrapRef.current, panRef.current, next);
     }
 
-    // Auto-center when zooming back to 1
     if (next === 1) {
       const wrap = fs ? fsImageWrapRef.current : imageWrapRef.current;
       const pan = fs ? fsPanRef.current : panRef.current;
@@ -92,7 +91,7 @@ export default function ProductImageViewer({
     }
   };
 
-  const resetZoomPan = useCallback((fs = false) => {
+  const resetZoomPan = React.useCallback((fs = false) => {
     if (fs) {
       fsZoomRef.current = 1; fsPanRef.current = { x: 0, y: 0 }; setFsZoomUI(1);
       applyTransform(fsImageWrapRef.current, fsPanRef.current, 1);
@@ -102,7 +101,6 @@ export default function ProductImageViewer({
     }
   }, []);
 
-  // sync embla <-> selectedIndex
   useEffect(() => {
     if (embla && embla.selectedScrollSnap() !== selectedIndex) embla.scrollTo(selectedIndex, true);
   }, [embla, selectedIndex]);
@@ -113,13 +111,9 @@ export default function ProductImageViewer({
     embla.on("reInit", onSel);
   }, [embla, onSelect]);
 
-  // reset on slide change
   useEffect(() => { resetZoomPan(false); if (isFullscreen) resetZoomPan(true); }, [selectedIndex, isFullscreen, resetZoomPan]);
-
-  // body scroll
   useEffect(() => { document.body.style.overflow = isFullscreen ? "hidden" : ""; return () => { document.body.style.overflow = ""; }; }, [isFullscreen]);
 
-  // pointer handlers (main)
   const onPointerDown = (e: React.PointerEvent) => {
     if (!containerRef.current) return;
     if (zoomRef.current > 1) e.stopPropagation();
@@ -131,7 +125,6 @@ export default function ProductImageViewer({
       panAtDownRef.current = { ...panRef.current };
     } else if (activePointers.current.size === 2) {
       const pts = Array.from(activePointers.current.values());
-      fsLastPinchDist.current = null;
       lastPinchDist.current = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
     }
   };
@@ -179,7 +172,6 @@ export default function ProductImageViewer({
     isPanningRef.current = false;
   };
 
-  // wheel zoom (bind to current slide container)
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -190,32 +182,27 @@ export default function ProductImageViewer({
       setZoomClamped(zoomRef.current + d, false);
     };
     el.addEventListener("wheel", handler, { passive: false });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+ // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return () => el.removeEventListener("wheel", handler as any);
   }, [selectedIndex]);
 
-  // double click/tap zoom toggle
-const onDoubleClick = (fs = false) => (e: React.MouseEvent) => {
-  const zr = fs ? fsZoomRef : zoomRef;
-  const pr = fs ? fsPanRef : panRef;
-  const wrap = fs ? fsImageWrapRef : imageWrapRef;
-  const next = zr.current > 1 ? 1 : 2;
-  zr.current = next;
+  const onDoubleClick = (fs = false) => (e: React.MouseEvent) => {
+    const zr = fs ? fsZoomRef : zoomRef;
+    const pr = fs ? fsPanRef : panRef;
+    const wrap = fs ? fsImageWrapRef : imageWrapRef;
+    const next = zr.current > 1 ? 1 : 2;
+    zr.current = next;
+    if (next === 1) pr.current = { x: 0, y: 0 };
+    if (fs) {
+  setFsZoomUI(next);
+} else {
+  setZoomUI(next);
+}
 
-  if (next === 1) pr.current = { x: 0, y: 0 };
+    applyTransform(wrap.current, pr.current, next);
+    if (!fs && next > 1) e.stopPropagation();
+  };
 
-  if (fs) {
-    setFsZoomUI(next);
-  } else {
-    setZoomUI(next);
-  }
-
-  applyTransform(wrap.current, pr.current, next);
-  if (!fs && next > 1) e.stopPropagation();
-};
-
-
-  // FS wheel
   useEffect(() => {
     if (!isFullscreen) return;
     const el = fsContainerRef.current;
@@ -231,8 +218,10 @@ const onDoubleClick = (fs = false) => (e: React.MouseEvent) => {
     return () => el.removeEventListener("wheel", handler as any);
   }, [isFullscreen]);
 
-  // thumbs ref
-  const thumbsRef = useRef<HTMLDivElement | null>(null);
+  const thumbsVRef = useRef<HTMLDivElement | null>(null);
+
+  const canPrev = !isSingle && zoomRef.current === 1 && selectedIndex > 0;
+  const canNext = !isSingle && zoomRef.current === 1 && selectedIndex < images.length - 1;
 
   if (!images || images.length === 0) {
     return (
@@ -242,182 +231,153 @@ const onDoubleClick = (fs = false) => (e: React.MouseEvent) => {
     );
   }
 
-  const prevDisabled = selectedIndex === 0 || zoomRef.current > 1;
-  const nextDisabled = selectedIndex === images.length - 1 || zoomRef.current > 1;
-
   return (
-    <div className="w-full space-y-4 select-none">
-      {/* HERO */}
-      <Carousel opts={{ align: "start", loop: false }} setApi={setEmbla} className="w-full">
-        <CarouselContent>
-          {images.map((src, i) => (
-            <CarouselItem key={i} className="basis-full">
-              <div
-                ref={i === selectedIndex ? containerRef : null}
-                className="group relative w-full aspect-[4/3] md:aspect-[16/10] rounded-md overflow-hidden touch-none bg-transparent ring-1 ring-white/10"
-                style={{ touchAction: "none" }}
-                onPointerDown={i === selectedIndex ? onPointerDown : undefined}
-                onPointerMove={i === selectedIndex ? onPointerMove : undefined}
-                onPointerUp={i === selectedIndex ? onPointerUp : undefined}
-                onPointerCancel={i === selectedIndex ? onPointerUp : undefined}
-                onDoubleClick={i === selectedIndex ? onDoubleClick(false) : undefined}
-              >
-                <div
-                  ref={i === selectedIndex ? imageWrapRef : null}
-                  className="absolute inset-0 flex items-center justify-center will-change-transform overflow-hidden rounded-md"
-                  style={{ transform: `translate3d(${panRef.current.x}px, ${panRef.current.y}px, 0) scale(${zoomRef.current})` }}
-                >
-                  <Image
-                    src={src || "/placeholder.svg"}
-                    alt={title}
-                    fill
-                    priority
-                    sizes="100vw"
-                    className="object-cover object-center pointer-events-none"
-                  />
-                </div>
-
-                {/* in-image arrows (hidden by default) */}
-                {showArrows && i === selectedIndex && (
-                  <>
-                    <button
-                      type="button"
-                      className={`absolute left-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-white/90 hover:text-white ${prevDisabled ? "pointer-events-none opacity-0" : ""}`}
-                      onClick={() => onSelect(Math.max(0, selectedIndex - 1))}
-                      aria-label="Previous image"
-                    >
-                      <ChevronLeft className="w-6 h-6" />
-                    </button>
-                    <button
-                      type="button"
-                      className={`absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-white/90 hover:text-white ${nextDisabled ? "pointer-events-none opacity-0" : ""}`}
-                      onClick={() => onSelect(Math.min(images.length - 1, selectedIndex + 1))}
-                      aria-label="Next image"
-                    >
-                      <ChevronRight className="w-6 h-6" />
-                    </button>
-                  </>
-                )}
-
-                {/* Fullscreen toggle stays (tiny icon) */}
-                {i === selectedIndex && (
-                  <button
-                    onClick={() => { setIsFullscreen(true); resetZoomPan(true); }}
-                    className="absolute bottom-3 right-3 p-1 text-white/80 hover:text-white hover:bg-white/10 rounded-md transition"
-                    aria-label="View fullscreen"
-                    title="Fullscreen"
-                  >
-                    <Maximize2 className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
-
-      {/* Zoom controls & index (hidden by default) */}
-      {(showZoomControls || showIndex) && (
-        <div className="mt-2 flex items-center justify-between gap-2 flex-wrap">
-          {showZoomControls ? (
-            <div className="flex gap-2">
-              <button
-                onClick={() => setZoomClamped(zoomRef.current - ZOOM_STEP)}
-                disabled={zoomRef.current <= MIN_ZOOM}
-                className="p-1.5 rounded-md bg-transparent hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed text-white/90 hover:text-white transition border border-white/10"
-                aria-label="Zoom out"
-                title="Zoom out"
-              >
-                <ZoomOut className="w-4 h-4" />
-              </button>
-              <div className="px-2.5 py-1.5 rounded-md bg-transparent text-white/90 text-sm font-medium min-w-[60px] text-center ring-1 ring-white/10">
-                {Math.round(zoomUI * 100)}%
-              </div>
-              <button
-                onClick={() => setZoomClamped(zoomRef.current + ZOOM_STEP)}
-                disabled={zoomRef.current >= MAX_ZOOM}
-                className="p-1.5 rounded-md bg-transparent hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed text-white/90 hover:text-white transition border border-white/10"
-                aria-label="Zoom in"
-                title="Zoom in"
-              >
-                <ZoomIn className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => resetZoomPan(false)}
-                disabled={zoomRef.current === 1 && panRef.current.x === 0 && panRef.current.y === 0}
-                className="p-1.5 rounded-md bg-transparent hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed text-white/90 hover:text-white transition border border-white/10"
-                aria-label="Reset zoom"
-                title="Reset zoom"
-              >
-                <RotateCcw className="w-4 h-4" />
-              </button>
-            </div>
-          ) : <div />}
-
-          {showIndex && (
-            <div className="text-sm text-gray-400 font-medium">
-              {selectedIndex + 1} / {images.length}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Bottom thumbnails (kept), bottom arrows hidden by default */}
-      <div className="flex items-center gap-3">
-        {showArrows && (
+    <div className="w-full select-none md:grid md:grid-cols-[88px_1fr] md:gap-4">
+      {/* LEFT SIDEBAR (exact same height as hero; no horizontal scrollbar) */}
+      <div
+        ref={thumbsVRef}
+        className={`hidden md:flex flex-col gap-2 pr-1 overflow-y-auto overflow-x-hidden no-scrollbar ${heightClass}`}
+        aria-label="Thumbnails"
+      >
+        {images.map((src, i) => (
           <button
-            type="button"
-            onClick={() => onSelect(Math.max(0, selectedIndex - 1))}
-            disabled={selectedIndex === 0}
-            className="shrink-0 p-1.5 rounded-md bg-transparent text-white/70 hover:text-white border border-white/10 disabled:opacity-30"
-            aria-label="Previous image"
+            key={i}
+            onClick={() => onSelect(i)}
+            className={`relative w-20 h-20 rounded-md overflow-hidden border-2 transition-all focus:outline-none focus:ring-2 focus:ring-white/60
+              ${selectedIndex === i ? "border-white shadow-lg" : "border-white/20 hover:border-white/40"}`}
+            aria-label={`View image ${i + 1}`}
+            aria-current={selectedIndex === i}
           >
-            <ChevronLeft className="w-5 h-5" />
+            <Image src={src || "/placeholder.svg"} alt={`Thumbnail ${i + 1}`} fill sizes="80px" className="object-cover object-center" />
           </button>
-        )}
-
-        <div ref={thumbsRef} className="flex gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
-          {images.map((src, i) => (
-            <button
-              key={i}
-              onClick={() => onSelect(i)}
-              className={`relative flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-md overflow-hidden border-2 transition-all focus:outline-none focus:ring-2 focus:ring-white/60 ${selectedIndex === i ? "border-white shadow-lg" : "border-white/20 hover:border-white/40"}`}
-              aria-label={`View image ${i + 1}`}
-              aria-current={selectedIndex === i}
-            >
-              <Image src={src || "/placeholder.svg"} alt={`Thumbnail ${i + 1}`} fill sizes="80px" className="object-cover object-center" />
-            </button>
-          ))}
-        </div>
-
-        {showArrows && (
-          <button
-            type="button"
-            onClick={() => onSelect(Math.min(images.length - 1, selectedIndex + 1))}
-            disabled={selectedIndex === images.length - 1}
-            className="shrink-0 p-1.5 rounded-md bg-transparent text-white/70 hover:text-white border border-white/10 disabled:opacity-30"
-            aria-label="Next image"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        )}
+        ))}
       </div>
 
-      {/* Fullscreen */}
+      {/* RIGHT: HERO (fixed height to match your old layout) */}
+      <div className="w-full space-y-4">
+        <Carousel opts={{ align: "start", loop: false }} setApi={setEmbla} className="w-full">
+          <CarouselContent>
+            {images.map((src, i) => (
+              <CarouselItem key={i} className="basis-full">
+                <div
+                  ref={i === selectedIndex ? containerRef : null}
+                  className={`group relative w-full ${heightClass} rounded-md overflow-hidden touch-none bg-transparent ring-1 ring-white/10`}
+                  style={{ touchAction: "none" }}
+                  onPointerDown={i === selectedIndex ? onPointerDown : undefined}
+                  onPointerMove={i === selectedIndex ? onPointerMove : undefined}
+                  onPointerUp={i === selectedIndex ? onPointerUp : undefined}
+                  onPointerCancel={i === selectedIndex ? onPointerUp : undefined}
+                  onDoubleClick={i === selectedIndex ? onDoubleClick(false) : undefined}
+                  onTouchMove={(e) => e.preventDefault()} // stop page scroll while swiping gallery
+                  onContextMenu={(e) => e.preventDefault()}
+                >
+                  <div
+                    ref={i === selectedIndex ? imageWrapRef : null}
+                    className="absolute inset-0 flex items-center justify-center will-change-transform overflow-hidden rounded-md"
+                    style={{ transform: `translate3d(${panRef.current.x}px, ${panRef.current.y}px, 0) scale(${zoomRef.current})` }}
+                  >
+                    <Image
+                      src={src || "/placeholder.svg"}
+                      alt={title}
+                      fill
+                      sizes="100vw"
+                      className="object-cover object-center pointer-events-none"
+                      priority={i === selectedIndex}
+                    />
+                  </div>
+
+                  {showArrows && i === selectedIndex && (canPrev || canNext) && (
+                    <>
+                      {canPrev && (
+                        <button
+                          type="button"
+                          className="absolute left-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-white/90 hover:text-white"
+                          onClick={() => onSelect(Math.max(0, selectedIndex - 1))}
+                          aria-label="Previous image"
+                        >
+                          <ChevronLeft className="w-6 h-6" />
+                        </button>
+                      )}
+                      {canNext && (
+                        <button
+                          type="button"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-white/90 hover:text-white"
+                          onClick={() => onSelect(Math.min(images.length - 1, selectedIndex + 1))}
+                          aria-label="Next image"
+                        >
+                          <ChevronRight className="w-6 h-6" />
+                        </button>
+                      )}
+                    </>
+                  )}
+
+                  {i === selectedIndex && (
+                    <button
+                      onClick={() => { setIsFullscreen(true); resetZoomPan(true); }}
+                      className="absolute bottom-3 right-3 p-1 text-white/80 hover:text-white hover:bg-white/10 rounded-md transition"
+                      aria-label="View fullscreen"
+                      title="Fullscreen"
+                    >
+                      <Maximize2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
+
+        {(showZoomControls || showIndex) && (
+          <div className="mt-2 flex items-center justify-between gap-2 flex-wrap">
+            {showZoomControls ? (
+              <div className="flex gap-2">
+                <button onClick={() => setZoomClamped(zoomRef.current - ZOOM_STEP)} disabled={zoomRef.current <= MIN_ZOOM} className="p-1.5 rounded-md bg-transparent hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed text-white/90 hover:text-white transition border border-white/10" aria-label="Zoom out">
+                  <ZoomOut className="w-4 h-4" />
+                </button>
+                <div className="px-2.5 py-1.5 rounded-md bg-transparent text-white/90 text-sm font-medium min-w-[60px] text-center ring-1 ring-white/10">
+                  {Math.round(zoomUI * 100)}%
+                </div>
+                <button onClick={() => setZoomClamped(zoomRef.current + ZOOM_STEP)} disabled={zoomRef.current >= MAX_ZOOM} className="p-1.5 rounded-md bg-transparent hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed text-white/90 hover:text-white transition border border-white/10" aria-label="Zoom in">
+                  <ZoomIn className="w-4 h-4" />
+                </button>
+                <button onClick={() => resetZoomPan(false)} disabled={zoomRef.current === 1 && panRef.current.x === 0 && panRef.current.y === 0} className="p-1.5 rounded-md bg-transparent hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed text-white/90 hover:text-white transition border border-white/10" aria-label="Reset zoom">
+                  <RotateCcw className="w-4 h-4" />
+                </button>
+              </div>
+            ) : <div />}
+
+            {showIndex && (
+              <div className="text-sm text-gray-400 font-medium">
+                {selectedIndex + 1} / {images.length}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* MOBILE thumbnails (still scrollable by mouse/touch, no buttons) */}
+        <div className="md:hidden">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+            {images.map((src, i) => (
+              <button
+                key={i}
+                onClick={() => onSelect(i)}
+                className={`relative flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all focus:outline-none focus:ring-2 focus:ring-white/60 ${selectedIndex === i ? "border-white shadow-lg" : "border-white/20 hover:border-white/40"}`}
+                aria-label={`View image ${i + 1}`}
+                aria-current={selectedIndex === i}
+              >
+                <Image src={src || "/placeholder.svg"} alt={`Thumbnail ${i + 1}`} fill sizes="80px" className="object-cover object-center" />
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* FULLSCREEN (object-contain to show full image) */}
       {isFullscreen && (
         <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm flex flex-col">
           <div className="flex items-center justify-between p-4 border-b border-white/10">
-            {showIndex ? (
-              <div className="text-white text-sm font-medium">{selectedIndex + 1} / {images.length}</div>
-            ) : (
-              <div /> /* spacer */
-            )}
-            <button
-              onClick={() => setIsFullscreen(false)}
-              className="p-2 rounded-md hover:bg-white/10 text-white transition"
-              aria-label="Close fullscreen"
-              title="Close"
-            >
+            {showIndex ? <div className="text-white text-sm font-medium">{selectedIndex + 1} / {images.length}</div> : <div />}
+            <button onClick={() => setIsFullscreen(false)} className="p-2 rounded-md hover:bg-white/10 text-white transition" aria-label="Close fullscreen" title="Close">
               <X className="w-6 h-6" />
             </button>
           </div>
@@ -443,33 +403,23 @@ const onDoubleClick = (fs = false) => (e: React.MouseEvent) => {
               const map = fsActivePointers.current;
               if (!map.has(e.pointerId)) return;
               map.set(e.pointerId, { x: e.clientX, y: e.clientY });
-
               if (map.size === 2 && fsLastPinchDist.current) {
                 const pts = Array.from(map.values());
                 const dist = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
                 const scale = dist / fsLastPinchDist.current;
                 fsLastPinchDist.current = dist;
-
                 const next = clamp(fsZoomRef.current * scale, MIN_ZOOM, MAX_ZOOM);
                 fsZoomRef.current = next; setFsZoomUI(next);
-
                 const { maxX, maxY } = getPanBounds(fsContainerRef.current, next);
-                fsPanRef.current = {
-                  x: clamp(fsPanRef.current.x, -maxX, maxX),
-                  y: clamp(fsPanRef.current.y, -maxY, maxY),
-                };
+                fsPanRef.current = { x: clamp(fsPanRef.current.x, -maxX, maxX), y: clamp(fsPanRef.current.y, -maxY, maxY) };
                 requestAnimationFrame(() => applyTransform(fsImageWrapRef.current, fsPanRef.current, next));
                 return;
               }
-
               if (fsIsPanningRef.current) {
                 const dx = e.clientX - fsDragStartRef.current.x;
                 const dy = e.clientY - fsDragStartRef.current.y;
                 const { maxX, maxY } = getPanBounds(fsContainerRef.current, fsZoomRef.current);
-                const nextPan = {
-                  x: clamp(fsPanAtDownRef.current.x + dx, -maxX, maxX),
-                  y: clamp(fsPanAtDownRef.current.y + dy, -maxY, maxY),
-                };
+                const nextPan = { x: clamp(fsPanAtDownRef.current.x + dx, -maxX, maxX), y: clamp(fsPanAtDownRef.current.y + dy, -maxY, maxY) };
                 fsPanRef.current = nextPan;
                 requestAnimationFrame(() => applyTransform(fsImageWrapRef.current, nextPan, fsZoomRef.current));
               }
@@ -480,20 +430,19 @@ const onDoubleClick = (fs = false) => (e: React.MouseEvent) => {
           >
             <div
               ref={fsImageWrapRef}
-              className="absolute inset-0 flex items-center justify-center will-change-transform overflow-hidden rounded-md"
+              className="absolute inset-0 flex items-center justify-center will-change-transform overflow-hidden"
               style={{ transform: `translate3d(${fsPanRef.current.x}px, ${fsPanRef.current.y}px, 0) scale(${fsZoomRef.current})` }}
             >
               <Image
                 src={currentImage || "/placeholder.svg"}
                 alt={title}
                 fill
-                priority
                 sizes="100vw"
                 className="object-contain object-center pointer-events-none"
+                priority
               />
             </div>
 
-            {/* FS zoom readout hidden unless you want it */}
             {showZoomControls && fsZoomUI > 1 && (
               <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-1 rounded-md text-sm font-medium">
                 {Math.round(fsZoomUI * 100)}%
@@ -505,6 +454,3 @@ const onDoubleClick = (fs = false) => (e: React.MouseEvent) => {
     </div>
   );
 }
-
-/* .no-scrollbar::-webkit-scrollbar { display: none; }
-   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; } */
