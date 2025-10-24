@@ -188,7 +188,12 @@ export default function ProductImageViewer({
     const next = zr.current > 1 ? 1 : 2;
     zr.current = next;
     if (next === 1) pr.current = { x: 0, y: 0 };
-    fs ? setFsZoomUI(next) : setZoomUI(next);
+    if (fs) {
+  setFsZoomUI(next);
+} else {
+  setZoomUI(next);
+}
+
     applyTransform(wrap.current, pr.current, next);
     if (!fs && next > 1) e.stopPropagation();
   };
@@ -252,7 +257,7 @@ export default function ProductImageViewer({
                 <div
                   ref={i === selectedIndex ? containerRef : null}
                   className={`group relative w-full ${heightClass} rounded-md overflow-hidden bg-transparent ring-1 ring-white/10`}
-                  /* Allow page scroll on mobile when not zoomed; capture gestures when zoomed-in */
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   style={{ touchAction: zoomRef.current > 1 ? "none" : "pan-y pinch-zoom" as any }}
                   onPointerDown={i === selectedIndex ? onPointerDown : undefined}
                   onPointerMove={i === selectedIndex ? onPointerMove : undefined}
