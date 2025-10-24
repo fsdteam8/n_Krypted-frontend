@@ -65,13 +65,13 @@ export default function NewsletterSubscription() {
   };
 
   return (
-    <div className="w-[85%] max-w-lg md:w-full">
+    <div className="">
       <h2 className="text-xl font-bold mb-4 text-black">
         Jetzt anmelden und nichts mehr verpassen
       </h2>
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col sm:flex-row gap-2 w-[90%] md:w-full"
+        className="flex flex-col sm:flex-row gap-2 max-w-[280px]"
       >
         <div className="bg-[#222222] flex items-center p-2 rounded-lg w-full">
           <input

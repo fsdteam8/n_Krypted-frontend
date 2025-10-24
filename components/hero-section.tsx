@@ -20,10 +20,11 @@ export function HeroBanner() {
       <div className="relative h-full flex items-center">
         <div className="container">
           <div className="max-w-2xl ">
-            <div className="text-3xl md:text-4xl lg:text-[36px] font-bold text-white mb-4">
-              Entdecke, was deine Stadt
-              <div className="mt-3">wirklich ausmacht</div>
-            </div>
+           <div className="text-[28px] lg:text-[36px] font-bold text-white mb-4 max-w-xl leading-tight">
+  Entdecke, was deine Stadt<br />
+  wirklich ausmacht
+</div>
+
             <div className="mb-8">
               <div className="text-white/90 text-sm md:text-base max-w-2md">
                 Mit <span className="font-bold ">Walk Throughz</span> erlebst du
