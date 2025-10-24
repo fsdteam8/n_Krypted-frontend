@@ -430,7 +430,7 @@ export default function DealDetails({ auctionId }: AuctionDetailsProps) {
             onSelect={setSelectedImageIndex}
             title={auction?.title || "Product Image"}
             showArrows
-            s
+            
           />
         </div>
 
