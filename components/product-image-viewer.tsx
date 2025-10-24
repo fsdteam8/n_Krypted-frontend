@@ -1,6 +1,6 @@
 "use client";
 
-import React, {  useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ZoomIn, ZoomOut, RotateCcw, Maximize2, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
@@ -10,14 +10,11 @@ interface ProductImageViewerProps {
   selectedIndex: number;
   onSelect: (index: number) => void;
   title?: string;
-
-  /** UI toggles (all default to false to hide the chrome) */
   showArrows?: boolean;
   showZoomControls?: boolean;
   showIndex?: boolean;
-
-  /** Optional height classes to exactly match a page layout */
-  heightClass?: string; // e.g. "h-[491px] md:h-[391px]"
+  /** Adjust to your layout; smaller on mobile by default */
+  heightClass?: string; // e.g. "h-[340px] md:h-[391px]"
 }
 
 export default function ProductImageViewer({
@@ -28,7 +25,8 @@ export default function ProductImageViewer({
   showArrows = false,
   showZoomControls = false,
   showIndex = false,
-  heightClass = "h-[491px] md:h-[391px]", // matches your previous layout
+  // ↓ reduced mobile height
+  heightClass = "h-[360px] md:h-[391px]",
 }: ProductImageViewerProps) {
   const MIN_ZOOM = 1, MAX_ZOOM = 4, ZOOM_STEP = 0.2;
 
@@ -42,7 +40,6 @@ export default function ProductImageViewer({
   const activePointers = useRef(new Map<number, { x: number; y: number }>());
   const lastPinchDist = useRef<number | null>(null);
   const [zoomUI, setZoomUI] = useState(1);
-
   const [embla, setEmbla] = useState<CarouselApi>();
 
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -78,7 +75,6 @@ export default function ProductImageViewer({
       zoomRef.current = next; setZoomUI(next);
       applyTransform(imageWrapRef.current, panRef.current, next);
     }
-
     if (next === 1) {
       const wrap = fs ? fsImageWrapRef.current : imageWrapRef.current;
       const pan = fs ? fsPanRef.current : panRef.current;
@@ -101,9 +97,7 @@ export default function ProductImageViewer({
     }
   }, []);
 
-  useEffect(() => {
-    if (embla && embla.selectedScrollSnap() !== selectedIndex) embla.scrollTo(selectedIndex, true);
-  }, [embla, selectedIndex]);
+  useEffect(() => { if (embla && embla.selectedScrollSnap() !== selectedIndex) embla.scrollTo(selectedIndex, true); }, [embla, selectedIndex]);
   useEffect(() => {
     if (!embla) return;
     const onSel = () => onSelect(embla.selectedScrollSnap());
@@ -112,6 +106,7 @@ export default function ProductImageViewer({
   }, [embla, onSelect]);
 
   useEffect(() => { resetZoomPan(false); if (isFullscreen) resetZoomPan(true); }, [selectedIndex, isFullscreen, resetZoomPan]);
+
   useEffect(() => { document.body.style.overflow = isFullscreen ? "hidden" : ""; return () => { document.body.style.overflow = ""; }; }, [isFullscreen]);
 
   const onPointerDown = (e: React.PointerEvent) => {
@@ -182,7 +177,7 @@ export default function ProductImageViewer({
       setZoomClamped(zoomRef.current + d, false);
     };
     el.addEventListener("wheel", handler, { passive: false });
- // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return () => el.removeEventListener("wheel", handler as any);
   }, [selectedIndex]);
 
@@ -193,12 +188,7 @@ export default function ProductImageViewer({
     const next = zr.current > 1 ? 1 : 2;
     zr.current = next;
     if (next === 1) pr.current = { x: 0, y: 0 };
-    if (fs) {
-  setFsZoomUI(next);
-} else {
-  setZoomUI(next);
-}
-
+    fs ? setFsZoomUI(next) : setZoomUI(next);
     applyTransform(wrap.current, pr.current, next);
     if (!fs && next > 1) e.stopPropagation();
   };
@@ -233,7 +223,7 @@ export default function ProductImageViewer({
 
   return (
     <div className="w-full select-none md:grid md:grid-cols-[88px_1fr] md:gap-4">
-      {/* LEFT SIDEBAR (exact same height as hero; no horizontal scrollbar) */}
+      {/* LEFT SIDEBAR (same height as hero; no horizontal scrollbar) */}
       <div
         ref={thumbsVRef}
         className={`hidden md:flex flex-col gap-2 pr-1 overflow-y-auto overflow-x-hidden no-scrollbar ${heightClass}`}
@@ -253,7 +243,7 @@ export default function ProductImageViewer({
         ))}
       </div>
 
-      {/* RIGHT: HERO (fixed height to match your old layout) */}
+      {/* RIGHT: HERO */}
       <div className="w-full space-y-4">
         <Carousel opts={{ align: "start", loop: false }} setApi={setEmbla} className="w-full">
           <CarouselContent>
@@ -261,14 +251,14 @@ export default function ProductImageViewer({
               <CarouselItem key={i} className="basis-full">
                 <div
                   ref={i === selectedIndex ? containerRef : null}
-                  className={`group relative w-full ${heightClass} rounded-md overflow-hidden touch-none bg-transparent ring-1 ring-white/10`}
-                  style={{ touchAction: "none" }}
+                  className={`group relative w-full ${heightClass} rounded-md overflow-hidden bg-transparent ring-1 ring-white/10`}
+                  /* Allow page scroll on mobile when not zoomed; capture gestures when zoomed-in */
+                  style={{ touchAction: zoomRef.current > 1 ? "none" : "pan-y pinch-zoom" as any }}
                   onPointerDown={i === selectedIndex ? onPointerDown : undefined}
                   onPointerMove={i === selectedIndex ? onPointerMove : undefined}
                   onPointerUp={i === selectedIndex ? onPointerUp : undefined}
                   onPointerCancel={i === selectedIndex ? onPointerUp : undefined}
                   onDoubleClick={i === selectedIndex ? onDoubleClick(false) : undefined}
-                  onTouchMove={(e) => e.preventDefault()} // stop page scroll while swiping gallery
                   onContextMenu={(e) => e.preventDefault()}
                 >
                   <div
@@ -346,15 +336,11 @@ export default function ProductImageViewer({
               </div>
             ) : <div />}
 
-            {showIndex && (
-              <div className="text-sm text-gray-400 font-medium">
-                {selectedIndex + 1} / {images.length}
-              </div>
-            )}
+            {showIndex && <div className="text-sm text-gray-400 font-medium">{selectedIndex + 1} / {images.length}</div>}
           </div>
         )}
 
-        {/* MOBILE thumbnails (still scrollable by mouse/touch, no buttons) */}
+        {/* MOBILE thumbnails */}
         <div className="md:hidden">
           <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
             {images.map((src, i) => (
@@ -372,7 +358,7 @@ export default function ProductImageViewer({
         </div>
       </div>
 
-      {/* FULLSCREEN (object-contain to show full image) */}
+      {/* FULLSCREEN (object-contain) */}
       {isFullscreen && (
         <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm flex flex-col">
           <div className="flex items-center justify-between p-4 border-b border-white/10">
@@ -384,7 +370,7 @@ export default function ProductImageViewer({
 
           <div
             ref={fsContainerRef}
-            className="flex-1 relative overflow-hidden cursor-grab active:cursor-grabbing touch-none"
+            className="flex-1 relative overflow-hidden cursor-grab active:cursor-grabbing"
             style={{ touchAction: "none" }}
             onPointerDown={(e) => {
               (e.target as Element).setPointerCapture?.(e.pointerId);
@@ -403,6 +389,7 @@ export default function ProductImageViewer({
               const map = fsActivePointers.current;
               if (!map.has(e.pointerId)) return;
               map.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
               if (map.size === 2 && fsLastPinchDist.current) {
                 const pts = Array.from(map.values());
                 const dist = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
@@ -415,6 +402,7 @@ export default function ProductImageViewer({
                 requestAnimationFrame(() => applyTransform(fsImageWrapRef.current, fsPanRef.current, next));
                 return;
               }
+
               if (fsIsPanningRef.current) {
                 const dx = e.clientX - fsDragStartRef.current.x;
                 const dy = e.clientY - fsDragStartRef.current.y;
