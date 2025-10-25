@@ -3,7 +3,14 @@ import Image from "next/image";
 const OurVision = () => {
   return (
     <section className="mt-12 md:mt-24 px-4 sm:px-6 lg:px-8">
-      <div className="flex flex-col lg:flex-row gap-8 lg:gap-14 justify-between max-w-7xl mx-auto relative">
+      <div
+        className="
+          flex flex-col-reverse lg:flex-row
+          gap-8 lg:gap-14
+          justify-between
+          max-w-7xl mx-auto relative
+        "
+      >
         {/* Image Section */}
         <div className="flex-1 flex justify-center lg:justify-start relative">
           <Image
